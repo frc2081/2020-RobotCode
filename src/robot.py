@@ -7,21 +7,24 @@ import subSystemTwoModule
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
-        interfaces = interfacesModule.interfaces()
-        io = ioModule.io()
-        subSysOne = subSystemOneModule.subSystemOne()
-        subSysTwo = subSystemTwoModule.subSystemTwo()
+        self.interfaces = interfacesModule.interface()
+        self.io = ioModule.io()
+        self.subSysOne = subSystemOneModule.subSystemOne()
+        self.subSysTwo = subSystemTwoModule.subSystemTwo()
 
     def robotPeriodic(self):
-        io.periodic(interfaces)
-        subSysOne.periodic(interfaces)
-        subSysTwo.periodic(interfaces)
+        self.io.periodic(self.interfaces)
+        self.subSysOne.periodic(self.interfaces)
+        self.subSysTwo.periodic(self.interfaces)
 
     def autonomousInit(self):
+        pass
 
     def autonomousPeriodic(self):
+        pass
 
     def teleopPeriodic(self):
+        pass
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
