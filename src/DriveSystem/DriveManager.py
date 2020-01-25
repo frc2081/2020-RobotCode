@@ -1,20 +1,40 @@
 import swervelib
 import wpilib
 from RobotCommands import RobotCMDS
+import rev
+from networktables import NetworkTables
+import ControllerManager
 
 #error due to unmerged code
-from ..ioModule import io
+#from ..ioModule import io
 
+#yAxis = self.driveController.getY(wpilib.XboxController.Hand.kRightHand)
+"""
+def io(self):
+    drvrfmot = rev.SparkMax(0)		
+    drvlfmot = rev.SparkMax(1)
+    drvrbmot = rev.SparkMax(2)
+    drvlbmot = rev.SparkMax(3)
+    turnrfmot = rev.SparkMax(4)
+    turnlfmot = rev.SparkMax(5)
+    turnrbmot = rev.SparkMax(6)
+    turnlbmot = rev.SparkMax(7)
+"""
 class DriveManager:
-    _io = io
 
-    driveBaseWidth = 0
-    driveBaseLength = 0
+    driveBaseWidth = 23
+    driveBaseLength = 32
 
+    #those numbers are the width and lenth of wheel center to wheel center
     _swervelib = swervelib.swervelib(driveBaseWidth, driveBaseLength)
+
     #_cntls = cntls #for controller library
 
     _pidpollrate = 0.01
+
+    counterboi = 0
+
+    cntlManager = ControllerManager.pollControllers
 
     _drvang = 0
     _drvmag = 0
@@ -51,12 +71,12 @@ class DriveManager:
     _rfwhlangoffset = 0
     _lbwhlangoffset = 0
     _rbwhlangoffset = 0
-    
+    """
     #Set up swerve turning motor PID controllers
-    _lfturnpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, io, io, _pidpollrate)
-    _rfturnpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, io, io, _pidpollrate)
-    _rbturnpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, io, io, _pidpollrate)
-    _lbturnpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, io, io, _pidpollrate)
+    _lfturnpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, _pidpollrate) #io, io,
+    _rfturnpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, _pidpollrate) #io, io,
+    _rbturnpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, _pidpollrate) #io, io,
+    _lbturnpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, _pidpollrate) #io, io,
     _lfturnpid.SetInputRange(0, 360)
     _lfturnpid.SetOutputRange(-1, 1)
     _lfturnpid.SetContinuous()
@@ -70,19 +90,20 @@ class DriveManager:
     _rbturnpid.SetOutputRange(-1, 1)
     _rbturnpid.SetContinuous()
     _rbturnpid.Enable()
-
-    _lfdrvpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, io, io, _pidpollrate)
+    """
+    """
+    _lfdrvpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, _pidpollrate) #io, io,
     #_lfdrvpid.Enable()
 
-    _rfdrvpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, io, io, _pidpollrate)
+    _rfdrvpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, _pidpollrate) #io, io,
     #_rfdrvpid.Enable()
 
-    _lbdrvpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, io, io, _pidpollrate)
+    _lbdrvpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, _pidpollrate) #io, io,
     #_lbdrvpid.Enable()
 
-    _rbdrvpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, io, io, _pidpollrate)
+    _rbdrvpid = wpilib.PIDController(_turnpidp, _turnpidi, _turnpidp, _pidpollrate) #io, io,
     #_rbdrvpid.Enable()
-
+    """
     """
     #for absolute encoders
     #Preferences file to save swerve drive encoder offset calibrations
@@ -94,20 +115,16 @@ class DriveManager:
     """
 
     def DriveManagerInit(self):
-        wpilib.SmartDashboard.putNumber("Swerve Turn P", self.turnP)
-        wpilib.SmartDashboard.putNumber("Swerve Turn I", self.turnI)
-        wpilib.SmartDashboard.putNumber("Swerve Turn D", self.turnD)
-
-        wpilib.SmartDashboard.putNumber("Swerve Drive P", self.drvP)
-        wpilib.SmartDashboard.putNumber("Swerve Drive I", self.drvI)
-        wpilib.SmartDashboard.putNumber("Swerve Drive D", self.drvD)
-        wpilib.SmartDashboard.putNumber("Swerve Drive F", self.drvF)
+        #self.sd = NetworkTables.getTable('SmartDashboard')
+        pass
 
     def DriveManagerPeriodic(self):
-        self.UpdatePIDTunes()
+        #self.UpdatePIDTunes()
         self.CalculateVectors()
         self.ApplyIntellegintSwerve()
-        self.ApplyPIDControl()
+        self.UpdateDashboard()
+        self.cntlManager()
+        #self.ApplyPIDControl()
 
     def DriveManagerAutoPeriodic(self):
         self.CalculateVectors()
@@ -125,10 +142,14 @@ class DriveManager:
         _drvmag = RobotCMDS.drvmag
         _drvrot = RobotCMDS.drvrot
         
-        _currangrf = self._swervelib.whl.angleRF
-        _curranglf = self._swervelib.whl.angleLF
-        _currangrb = self._swervelib.whl.angleRB
-        _curranglb = self._swervelib.whl.angleLB
+        _currangrf = self._swervelib.whl.speed1
+        _curranglf = self._swervelib.whl.speed2
+        _currangrb = self._swervelib.whl.speed4
+        _curranglb = self._swervelib.whl.speed3
+
+        print("drvang", _drvang)
+        print("drvmag", _drvmag)
+
         if (_drvmag != 0 or _drvrot != 0):
             self._swervelib.calcWheelVect(_drvmag, _drvang, _drvrot)
         else:
@@ -191,12 +212,12 @@ class DriveManager:
         self._swervelib.whl.speedRF *= self._maxdrivespeed
         self._swervelib.whl.speedLB *= self._maxdrivespeed
         self._swervelib.whl.speedRB *= self._maxdrivespeed
-
-        io.Set(self._swervelib.whl.speedLF)
-        io.Set(self._swervelib.whl.speedRF)
+        """
+        io.drvlfmot.Set(self._swervelib.whl.speedLF)
+        io.drvrfmot.Set(self._swervelib.whl.speedRF)
         io.Set(self._swervelib.whl.speedLB)
         io.Set(self._swervelib.whl.speedRB)
-
+        """
     def UpdateDashboard(self):
         #Swerve Desired Wheel Vectors
         wpilib.SmartDashboard.putNumber("Swerve Left Front Angle Desired", self._swervelib.whl.angleLF)	
@@ -209,24 +230,26 @@ class DriveManager:
         wpilib.SmartDashboard.putNumber("Swerve Left Back Speed Desired", self._swervelib.whl.speedLB)	
         wpilib.SmartDashboard.putNumber("Swerve Right Back Speed Desired", self._swervelib.whl.speedRB)
 
+        wpilib.SmartDashboard.putNumber("counterboi", self.counterboi)
+
         #Swerve Actual Wheel Vectors     **encoders**
         #encoder location
-        wpilib.SmartDashboard.putNumber("Swerve Left Front Angle Actual", io)
-        wpilib.SmartDashboard.putNumber("Swerve Right Front Angle Actual", io)	
-        wpilib.SmartDashboard.putNumber("Swerve Left Back Angle Actual", io)
-        wpilib.SmartDashboard.putNumber("Swerve Right Back Angle Actual", io)
+        wpilib.SmartDashboard.putNumber("Swerve Left Front Angle Actual", self._curranglf) #, io
+        wpilib.SmartDashboard.putNumber("Swerve Right Front Angle Actual", self._currangrf) #, io
+        wpilib.SmartDashboard.putNumber("Swerve Left Back Angle Actual", self._curranglb) #, io
+        wpilib.SmartDashboard.putNumber("Swerve Right Back Angle Actual", self._currangrb) #, io
         #encoder speed
-        wpilib.SmartDashboard.putNumber("Swerve Left Front Speed Actual", io)
-        wpilib.SmartDashboard.putNumber("Swerve Right Front Speed Actual", io)
-        wpilib.SmartDashboard.putNumber("Swerve Left Back Speed Actual", io)
-        wpilib.SmartDashboard.putNumber("Swerve Right Back Speed Actual", io)
+        #wpilib.SmartDashboard.putNumber("Swerve Left Front Speed Actual") #, io
+        #wpilib.SmartDashboard.putNumber("Swerve Right Front Speed Actual") #, io
+        #wpilib.SmartDashboard.putNumber("Swerve Left Back Speed Actual") #, io
+        #wpilib.SmartDashboard.putNumber("Swerve Right Back Speed Actual") #, io
 
         #Swerve Encoder offset calibrations
-        wpilib.SmartDashboard.putNumber("Swerve Left Front Encoder Offset", self._lfwhlangoffset)
-        wpilib.SmartDashboard.putNumber("Swerve Right Front Encoder Offset", self._rfwhlangoffset)
-        wpilib.SmartDashboard.putNumber("Swerve Left Back Encoder Offset", self._lbwhlangoffset)
-        wpilib.SmartDashboard.putNumber("Swerve Right Back Encoder Offset", self._rbwhlangoffset)
-
+        #wpilib.SmartDashboard.putNumber("Swerve Left Front Encoder Offset", self._lfwhlangoffset)
+        #wpilib.SmartDashboard.putNumber("Swerve Right Front Encoder Offset", self._rfwhlangoffset)
+        #wpilib.SmartDashboard.putNumber("Swerve Left Back Encoder Offset", self._lbwhlangoffset)
+        #wpilib.SmartDashboard.putNumber("Swerve Right Back Encoder Offset", self._rbwhlangoffset)
+    """
     def UpdatePIDTunes(self):
 
         self._turnpidp = wpilib.SmartDashboard.GetNumber("Swerve Turn P", self.turnP)
@@ -273,3 +296,4 @@ class DriveManager:
         self._rbdrvpid.SetI(self._drvpidi)
         self._rbdrvpid.SetD(self._drvpidd)
         self._rbdrvpid.SetF(self._drvpidf)
+    """

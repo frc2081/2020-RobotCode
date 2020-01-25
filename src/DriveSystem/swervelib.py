@@ -69,6 +69,7 @@ class swervelib(object):
             self._target_WA2 = self.radians_to_degrees(math.atan2(self._B, self._D))
             self._target_WA3 = self.radians_to_degrees(math.atan2(self._A, self._D))
             self._target_WA4 = self.radians_to_degrees(math.atan2(self._A, self._C))
+
         self.whl.speed1 = self._target_WS1
         self.whl.speed2 = self._target_WS2
         self.whl.speed3 = self._target_WS3
@@ -78,4 +79,7 @@ class swervelib(object):
         self.whl.angle2 = 360 - (self._target_WA2 + 180)
         self.whl.angle3 = 360 - (self._target_WA3 + 180)
         self.whl.angle4 = 360 - (self._target_WA4 + 180)
+
+        print("swerve calc complete")
+        print("Swerve internal", self.whl.speed1)
 
