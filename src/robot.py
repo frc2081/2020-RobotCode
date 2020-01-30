@@ -8,12 +8,13 @@ import controllerManager
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
-        #self.interfaces = interfacesModule.interface()
+        self.interfaces = interfacesModule.interfaces()
         #self.io = ioModule.io()
         #self.subSysOne = subSystemOneModule.subSystemOne()
         #self.subSysTwo = subSystemTwoModule.subSystemTwo()
+        self.interfaces.interfacesInit()
         self.controllerManagerInst = controllerManager.controllerManager()
-        self.controllerManagerInst.controllerInit()
+        self.controllerManagerInst.controllerInit(self)
 
     def robotPeriodic(self):
         #self.io.periodic(self.interfaces)
@@ -28,8 +29,8 @@ class MyRobot(wpilib.TimedRobot):
         pass
 
     def teleopPeriodic(self):
-        self.controllerManagerInst.controllerManagerPeriodic()
-        self.controllerManagerInst.controllerManagerSmartDashboard()
+        self.controllerManagerInst.controllerManagerPeriodic(self, self.interfaces)
+        self.controllerManagerInst.controllerManagerSmartDashboard(self, self.interfaces)
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
