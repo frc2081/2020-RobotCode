@@ -1,25 +1,29 @@
 import wpilib
 
 class interfaces:
+    #driver controller
+    dTurn = 0
+    dMoveX = 0
+    dMoveY = 0
+    dBallIntake = False
+    #self.dBallOther = False
+    dClimbRelease = False
+    dClimbWinch = 0
+
+    #mechanism controller
+    mSpinnyRaise = False
+    mSpinnyPhase1 = False
+    mSpinnyPhase2 = False
+    mShootAgainstWall = False
+    mShootStartLine = False
+    mShootStartLineAuto = False
+    mShootTrench = False
+    mShootTrenchAuto = False
+    mReverseIndexer = False
+    mStartShooter = 0
+
+    def __init__(self):
+        pass
 
     def interfacesInit(self):
-        #driver controller
-        self.dTurn = 0
-        self.dMoveX = 0
-        self.dMoveY = 0
-        self.dBallIntake = False
-        #self.dBallOther = False
-        self.dClimbRelease = False
-        self.dClimbWinch = 0
-
-        #mechanism controller
-        self.mSpinnyRaise = False
-        self.mSpinnyPhase1 = False
-        self.mSpinnyPhase2 = False
-        self.mShootAgainstWall = False
-        self.mShootStartLine = False
-        self.mShootStartLineAuto = False
-        self.mShootTrench = False
-        self.mShootTrenchAuto = False
-        self.mReverseIndexer = False
-        self.mStartShooter = 0
+        pass

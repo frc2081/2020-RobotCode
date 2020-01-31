@@ -3,12 +3,12 @@ import interfacesModule
 import robot
 
 class controllerManager:
-    def controllerInit(self):
+    def controllerInit(self, interfaces):
 
         self.driveController = wpilib.XboxController(0)
         self.mechanismController = wpilib.XboxController(1)
 
-        wpilib.SmartDashboard.putNumber("swerve turn command", self.interfaces.dTurn)
+        wpilib.SmartDashboard.putNumber("swerve turn command", interfaces.dTurn)
         wpilib.SmartDashboard.putNumber("swerve move X command", interfaces.dMoveX)
         wpilib.SmartDashboard.putNumber("swerve move Y command", interfaces.dMoveY)
         wpilib.SmartDashboard.putBoolean("ball intake command", interfaces.dBallIntake)
