@@ -1,9 +1,8 @@
 import swervelib
 import wpilib
-from RobotCommands import RobotCMDS
 import rev
 from networktables import NetworkTables
-import ControllerManager
+import math
 
 #error due to unmerged code
 #from ..ioModule import io
@@ -26,15 +25,11 @@ class DriveManager:
     driveBaseLength = 32
 
     #those numbers are the width and lenth of wheel center to wheel center
-    _swervelib = swervelib.swervelib(driveBaseWidth, driveBaseLength)
+    _swervelib = swervelib.SwerveLib(driveBaseWidth, driveBaseLength)
 
     #_cntls = cntls #for controller library
 
-    _pidpollrate = 0.01
-
-    counterboi = 0
-
-    cntlManager = ControllerManager.pollControllers
+    #_pidpollrate = 0.01
 
     _drvang = 0
     _drvmag = 0
@@ -53,6 +48,9 @@ class DriveManager:
     turnI = 0
     _turnpidd = 0
     turnD = 0
+
+    driveMotor = rev.CANSparkMax(2, rev.CANSparkMax.MotorType.kBrushless)
+    turnMotor = rev.CANSparkMax(1, rev.CANSparkMax.MotorType.kBrushless)
 
     #*
     #* max speed - 11.5 ft/s . 3.5052 m/s or 660 RPM of wheel
@@ -118,70 +116,77 @@ class DriveManager:
         #self.sd = NetworkTables.getTable('SmartDashboard')
         pass
 
-    def DriveManagerPeriodic(self):
+    def DriveManagerPeriodic(self, interfaces):
         #self.UpdatePIDTunes()
-        self.CalculateVectors()
+        self.CalculateVectors(interfaces)
         self.ApplyIntellegintSwerve()
         self.UpdateDashboard()
-        self.cntlManager()
+        #self.cntlManager()
         #self.ApplyPIDControl()
+        #self.motorTest()
 
-    def DriveManagerAutoPeriodic(self):
-        self.CalculateVectors()
+    def motorTest(self):
+        self.driveMotor.set(self._swervelib.whl.speed1)
+        self.turnMotor.set(0)
+
+    def DriveManagerAutoPeriodic(self, interfaces):
+        self.CalculateVectors(interfaces)
         self.ApplyIntellegintSwerve()
 
     """
     #need code to change digital encoder signal to angle
     """
 
-    def CalculateVectors(self):
+    def CalculateVectors(self, interfaces):
 
         #Determine if the driver or the guidance system is in control of the drivetrain
         #and use the appropriate drive commands
-        _drvang = RobotCMDS.drvang
-        _drvmag = RobotCMDS.drvmag
-        _drvrot = RobotCMDS.drvrot
-        
+
+        self._drvang = (math.atan2(-interfaces.dMoveX, -interfaces.dMoveY) * 180/3.14159265)
+        self._drvmag = math.sqrt(pow(interfaces.dMoveX, 2) + pow(interfaces.dMoveY, 2))
+        self._drvrot = interfaces.dTurn
+
+        wpilib.SmartDashboard.putNumber("Swerve Angle", self._drvang)
+        wpilib.SmartDashboard.putNumber("Swerve Mag", self._drvmag)
+        wpilib.SmartDashboard.putNumber("Swerve Rot", self._drvrot)
+
         _currangrf = self._swervelib.whl.speed1
         _curranglf = self._swervelib.whl.speed2
-        _currangrb = self._swervelib.whl.speed4
         _curranglb = self._swervelib.whl.speed3
+        _currangrb = self._swervelib.whl.speed4
 
-        print("drvang", _drvang)
-        print("drvmag", _drvmag)
-
-        if (_drvmag != 0 or _drvrot != 0):
-            self._swervelib.calcWheelVect(_drvmag, _drvang, _drvrot)
+        if (self._drvmag != 0 or self._drvrot != 0):
+            self._swervelib.calcWheelVect(self._drvmag, self._drvang, self._drvrot)
         else:
-            self._swervelib.whl.speedLF = 0
-            self._swervelib.whl.speedRF = 0
-            self._swervelib.whl.speedLB = 0
-            self._swervelib.whl.speedRB = 0
+            self._swervelib.whl.speed1 = 0
+            self._swervelib.whl.speed2 = 0
+            self._swervelib.whl.speed3 = 0
+            self._swervelib.whl.speed4 = 0
 
-            self._swervelib.whl.angleRF = _currangrf
-            self._swervelib.whl.angleLF = _curranglf
-            self._swervelib.whl.angleRB = _currangrb
-            self._swervelib.whl.angleLB = _curranglb
+            self._swervelib.whl.angle1 = _currangrf
+            self._swervelib.whl.angle2 = _curranglf
+            self._swervelib.whl.angle3 = _curranglb
+            self._swervelib.whl.angle4 = _currangrb
 
     #This function modifies the output of the swerve library to control the turn motors more intelligently
     #It works to prevent the wheels from turning completely around when they would only need to move a bit and then reverse to reach a target vector
     def ApplyIntellegintSwerve(self):
-        if (abs(self._swervelib.whl.angleRF - self._currangrf) > 90 and
-           (self._swervelib.whl.angleRF - self._currangrf < 270)):
-            self._swervelib.whl.angleRF = (self._swervelib.whl.angleRF + 180) % 360
-            self._swervelib.whl.speedRF *= -1
-        if (abs(self._swervelib.whl.angleLF - self._curranglf) > 90 and
-           (self._swervelib.whl.angleLF - self._curranglf < 270)):
-            self._swervelib.whl.angleLF = (self._swervelib.whl.angleLF + 180) % 360
-            self._swervelib.whl.speedLF *= -1
-        if (abs(self._swervelib.whl.angleRB - self._currangrb) > 90 and
-           (self._swervelib.whl.angleRB - self._currangrb < 270)):
-            self._swervelib.whl.angleRB = (self._swervelib.whl.angleRB + 180) % 360
-            self._swervelib.whl.speedRB *= -1
-        if (abs(self._swervelib.whl.angleLB - self._curranglb) > 90 and
-           (self._swervelib.whl.angleLB - self._curranglb < 270)):
-            self._swervelib.whl.angleLB = (self._swervelib.whl.angleLB + 180) % 360
-            self._swervelib.whl.speedLB *= -1
+        if (abs(self._swervelib.whl.angle1 - self._currangrf) > 90 and
+           (self._swervelib.whl.angle1 - self._currangrf < 270)):
+            self._swervelib.whl.angle1 = (self._swervelib.whl.angle1 + 180) % 360
+            self._swervelib.whl.speed1 *= -1
+        if (abs(self._swervelib.whl.angle2 - self._curranglf) > 90 and
+           (self._swervelib.whl.angle2 - self._curranglf < 270)):
+            self._swervelib.whl.angle2 = (self._swervelib.whl.angle2 + 180) % 360
+            self._swervelib.whl.speed2 *= -1
+        if (abs(self._swervelib.whl.angle4 - self._currangrb) > 90 and
+           (self._swervelib.whl.angle4 - self._currangrb < 270)):
+            self._swervelib.whl.angle4 = (self._swervelib.whl.angle4 + 180) % 360
+            self._swervelib.whl.speed4 *= -1
+        if (abs(self._swervelib.whl.angle3 - self._curranglb) > 90 and
+           (self._swervelib.whl.angle3 - self._curranglb < 270)):
+            self._swervelib.whl.angle3 = (self._swervelib.whl.angle3 + 180) % 360
+            self._swervelib.whl.speed3 *= -1
     
     #Function to prevent swerve drive from moving if the wheels have not yet moved to the target angle
     #Mainly used for autonomous navigation and following paths that have sharp corners
@@ -202,35 +207,33 @@ class DriveManager:
     def ApplyPIDControl(self):
         """
         #offset for absolute encoders
-        self._lfturnpid.SetSetpoint(self.WhlAngCalcOffset(self._swervelib.whl.angleLF, self._lfwhlangoffset))
-        self._rfturnpid.SetSetpoint(self.WhlAngCalcOffset(self._swervelib.whl.angleRF, self._rfwhlangoffset))
-        self._lbturnpid.SetSetpoint(self.WhlAngCalcOffset(self._swervelib.whl.angleLB, self._lbwhlangoffset))
-        self._rbturnpid.SetSetpoint(self.WhlAngCalcOffset(self._swervelib.whl.angleRB, self._rbwhlangoffset))
+        self._lfturnpid.SetSetpoint(self.WhlAngCalcOffset(self._swervelib.whl.angle2, self._lfwhlangoffset))
+        self._rfturnpid.SetSetpoint(self.WhlAngCalcOffset(self._swervelib.whl.angle1, self._rfwhlangoffset))
+        self._lbturnpid.SetSetpoint(self.WhlAngCalcOffset(self._swervelib.whl.angle3, self._lbwhlangoffset))
+        self._rbturnpid.SetSetpoint(self.WhlAngCalcOffset(self._swervelib.whl.angle4, self._rbwhlangoffset))
         """
 
-        self._swervelib.whl.speedLF *= self._maxdrivespeed
-        self._swervelib.whl.speedRF *= self._maxdrivespeed
-        self._swervelib.whl.speedLB *= self._maxdrivespeed
-        self._swervelib.whl.speedRB *= self._maxdrivespeed
+        self._swervelib.whl.speed1 *= self._maxdrivespeed
+        self._swervelib.whl.speed2 *= self._maxdrivespeed
+        self._swervelib.whl.speed3 *= self._maxdrivespeed
+        self._swervelib.whl.speed4 *= self._maxdrivespeed
         """
-        io.drvlfmot.Set(self._swervelib.whl.speedLF)
-        io.drvrfmot.Set(self._swervelib.whl.speedRF)
-        io.Set(self._swervelib.whl.speedLB)
-        io.Set(self._swervelib.whl.speedRB)
+        io.drvlfmot.Set(self._swervelib.whl.speed2)
+        io.drvrfmot.Set(self._swervelib.whl.speed1)
+        io.Set(self._swervelib.whl.speed3)
+        io.Set(self._swervelib.whl.speed4)
         """
     def UpdateDashboard(self):
         #Swerve Desired Wheel Vectors
-        wpilib.SmartDashboard.putNumber("Swerve Left Front Angle Desired", self._swervelib.whl.angleLF)	
-        wpilib.SmartDashboard.putNumber("Swerve Right Front Angle Desired", self._swervelib.whl.angleRF)	
-        wpilib.SmartDashboard.putNumber("Swerve Left Back Angle Desired", self._swervelib.whl.angleLB)	
-        wpilib.SmartDashboard.putNumber("Swerve Right Back Angle Desired", self._swervelib.whl.angleRB)	
+        wpilib.SmartDashboard.putNumber("Swerve Left Front Angle Desired", self._swervelib.whl.angle2)	
+        wpilib.SmartDashboard.putNumber("Swerve Right Front Angle Desired", self._swervelib.whl.angle1)	
+        wpilib.SmartDashboard.putNumber("Swerve Left Back Angle Desired", self._swervelib.whl.angle3)	
+        wpilib.SmartDashboard.putNumber("Swerve Right Back Angle Desired", self._swervelib.whl.angle4)	
 
-        wpilib.SmartDashboard.putNumber("Swerve Left Front Speed Desired", self._swervelib.whl.speedLF)	
-        wpilib.SmartDashboard.putNumber("Swerve Right Front Speed Desired", self._swervelib.whl.speedRF)	
-        wpilib.SmartDashboard.putNumber("Swerve Left Back Speed Desired", self._swervelib.whl.speedLB)	
-        wpilib.SmartDashboard.putNumber("Swerve Right Back Speed Desired", self._swervelib.whl.speedRB)
-
-        wpilib.SmartDashboard.putNumber("counterboi", self.counterboi)
+        wpilib.SmartDashboard.putNumber("Swerve Left Front Speed Desired", self._swervelib.whl.speed2)	
+        wpilib.SmartDashboard.putNumber("Swerve Right Front Speed Desired", self._swervelib.whl.speed1)	
+        wpilib.SmartDashboard.putNumber("Swerve Left Back Speed Desired", self._swervelib.whl.speed3)	
+        wpilib.SmartDashboard.putNumber("Swerve Right Back Speed Desired", self._swervelib.whl.speed4)
 
         #Swerve Actual Wheel Vectors     **encoders**
         #encoder location

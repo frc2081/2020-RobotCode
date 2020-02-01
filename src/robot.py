@@ -5,10 +5,12 @@ import ioModule
 import subSystemOneModule
 import subSystemTwoModule
 import controllerManager
+import DriveManager
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
         self.interfaces = interfacesModule.interfaces()
+        self.driveManagerInst = DriveManager.DriveManager()
         #self.io = ioModule.io()
         #self.subSysOne = subSystemOneModule.subSystemOne()
         #self.subSysTwo = subSystemTwoModule.subSystemTwo()
@@ -31,6 +33,7 @@ class MyRobot(wpilib.TimedRobot):
     def teleopPeriodic(self):
         self.controllerManagerInst.controllerManagerPeriodic(self.interfaces)
         self.controllerManagerInst.controllerManagerSmartDashboard(self.interfaces)
+        self.driveManagerInst.DriveManagerPeriodic(self.interfaces)
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
