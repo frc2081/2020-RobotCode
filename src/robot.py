@@ -2,9 +2,8 @@ import wpilib
 
 import interfacesModule
 import ioModule
-import subSystemOneModule
-import subSystemTwoModule
 import controllerManager
+import indexerSubsystem
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
@@ -15,12 +14,17 @@ class MyRobot(wpilib.TimedRobot):
         self.interfaces.interfacesInit()
         self.controllerManagerInst = controllerManager.controllerManager()
         self.controllerManagerInst.controllerInit(self.interfaces)
+        self.ioModuleInst = ioModule.io(self.interfaces)
+        self.indexerSubsystemInst = indexerSubsystem.indexer() 
+        self.indexerSubsystemInst.indexerInit(self.interfaces)
+        #self.ioModuleInst.__init__(self.interfaces)
 
     def robotPeriodic(self):
         #self.io.periodic(self.interfaces)
         #self.subSysOne.periodic(self.interfaces)
         #self.subSysTwo.periodic(self.interfaces)
-        pass
+        self.ioModuleInst.periodic(self.interfaces)
+        self.indexerSubsystemInst.indexerPeriodic(self.interfaces)
 
     def autonomousInit(self):
         pass
@@ -31,6 +35,7 @@ class MyRobot(wpilib.TimedRobot):
     def teleopPeriodic(self):
         self.controllerManagerInst.controllerManagerPeriodic(self.interfaces)
         self.controllerManagerInst.controllerManagerSmartDashboard(self.interfaces)
+        self.ioModuleInst.teleopperiodic(self.interfaces)
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)

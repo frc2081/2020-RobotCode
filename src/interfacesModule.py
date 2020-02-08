@@ -1,4 +1,6 @@
 import wpilib
+import ioModule
+import robot
 
 class interfaces:
 
@@ -43,8 +45,12 @@ class interfaces:
     #shooter speed is in rpm
     shooterTopSpeed = 0
     shooterBottomSpeed = 0
+    shooterTopSpeedEncoder = 0
+    shooterBottomSpeedEncoder = 0
     indexerAngle = 0
-    photoSensor = False
+    photoSensorFront = False
+    photoSensorBack = False
+    indexerEncoder = 0
 
     #control panel
     spinnerUpDown = 0
