@@ -4,6 +4,8 @@ import robot
 
 class interfaces:
 
+    robotUpdatePeriod = 0.05 #Main robot loop time in seconds
+
     #CONTROLLER INPUTS
     #\/---------\/
 
@@ -59,6 +61,9 @@ class interfaces:
     #intake
     #Release solenoid?
     intakeWheelSpeed = 0
+    intakeActualPos = 0
+    intakeDesiredPos = 0
+    intakeBallDetected = False
 
     #climber
     #climber release is an angle (maybe)
