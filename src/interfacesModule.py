@@ -1,6 +1,10 @@
 import wpilib
+import ioModule
+import robot
 
 class interfaces:
+
+    robotUpdatePeriod = 0.05 #Main robot loop time in seconds
 
     #CONTROLLER INPUTS
     #\/---------\/
@@ -43,8 +47,12 @@ class interfaces:
     #shooter speed is in rpm
     shooterTopSpeed = 0
     shooterBottomSpeed = 0
+    shooterTopSpeedEncoder = 0
+    shooterBottomSpeedEncoder = 0
     indexerAngle = 0
-    photoSensor = False
+    photoSensorFront = False
+    photoSensorBack = False
+    indexerEncoder = 0
 
     #control panel
     spinnerUpDown = 0
@@ -53,6 +61,9 @@ class interfaces:
     #intake
     #Release solenoid?
     intakeWheelSpeed = 0
+    intakeActualPos = 0
+    intakeDesiredPos = 0
+    intakeBallDetected = False
 
     #climber
     #climber release is an angle (maybe)
