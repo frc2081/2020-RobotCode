@@ -1,28 +1,23 @@
 import wpilib
 import rev
+import ctre
 
 from networktables import NetworkTables
-
-
 
 class io:
     def __init__(self):
         self.sd = NetworkTables.getTable("SmartDashboard")
 
         #Swerve System
-        self.swerveLFDMotor = rev.CANSparkMax(1, rev.MotorType.kBrushless)
-        self.swerveRFDMotor = rev.CANSparkMax(2, rev.MotorType.kBrushless)
-        self.swerveLBDMotor = rev.CANSparkMax(3, rev.MotorType.kBrushless)
-        self.swerveRBDMotor = rev.CANSparkMax(4, rev.MotorType.kBrushless)
+        self.swerveLFDMotor = ctre.WPI_TalonSRX(1)
+        self.swerveRFDMotor = ctre.WPI_TalonSRX(2)
+        self.swerveLBDMotor = ctre.WPI_TalonSRX(3)
+        self.swerveRBDMotor = ctre.WPI_TalonSRX(4)
         self.swerveLFTMotor = rev.CANSparkMax(5, rev.MotorType.kBrushless)
         self.swerveRFTMotor = rev.CANSparkMax(6, rev.MotorType.kBrushless)
         self.swerveLBTMotor = rev.CANSparkMax(7, rev.MotorType.kBrushless)
         self.swerveRBTMotor = rev.CANSparkMax(8, rev.MotorType.kBrushless)
 
-        self.swerveLFDEncoder = self.swerveLFDMotor.getEncoder()
-        self.swerveRFDEncoder = self.swerveRFDMotor.getEncoder()
-        self.swerveLBDEncoder = self.swerveLBDMotor.getEncoder()
-        self.swerveRBDEncoder = self.swerveRBDMotor.getEncoder()
         self.swerveLFTEncoder = self.swerveLFTMotor.getEncoder()
         self.swerveRFTEncoder = self.swerveRFTMotor.getEncoder()
         self.swerveLBTEncoder = self.swerveLBTMotor.getEncoder()
@@ -40,35 +35,10 @@ class io:
         self.swerveTurnOutputMax = 0
         self.swerveTurnConversionFactor = 1
 
-        self.swerveLFDEncoder.setVelocityConversionFactor(self.swerveDriveConversionFactor)
-        self.swerveRFDEncoder.setVelocityConversionFactor(self.swerveDriveConversionFactor)
-        self.swerveLBDEncoder.setVelocityConversionFactor(self.swerveDriveConversionFactor)
-        self.swerveRBDEncoder.setVelocityConversionFactor(self.swerveDriveConversionFactor)
         self.swerveLFTEncoder.setPositionConversionFactor(self.swerveDriveConversionFactor)
         self.swerveRFTEncoder.setPositionConversionFactor(self.swerveDriveConversionFactor)
         self.swerveLBTEncoder.setPositionConversionFactor(self.swerveDriveConversionFactor)
-        self.swerveRBTEncoder.setPositionConversionFactor(self.swerveDriveConversionFactor)
-        
-
-        self.swerveLFDPID = self.swerveLFDMotor.getPIDController()
-        self.swerveLFDPID.setP(self.swerveDriveP)
-        self.swerveLFDPID.setI(self.swerveDriveI)
-        self.swerveLFDPID.setOutputRange(self.swerveDriveOutputMin, self.swerveDriveOutputMax)
-
-        self.swerveRFDPID = self.swerveRFDMotor.getPIDController()
-        self.swerveRFDPID.setP(self.swerveDriveP)
-        self.swerveRFDPID.setI(self.swerveDriveI)
-        self.swerveRFDPID.setOutputRange(self.swerveDriveOutputMin, self.swerveDriveOutputMax)
-
-        self.swerveLBDPID = self.swerveLBDMotor.getPIDController()
-        self.swerveLBDPID.setP(self.swerveDriveP)
-        self.swerveLBDPID.setI(self.swerveDriveI)
-        self.swerveLBDPID.setOutputRange(self.swerveDriveOutputMin, self.swerveDriveOutputMax)
-
-        self.swerveRBDPID = self.swerveRBDMotor.getPIDController()
-        self.swerveRBDPID.setP(self.swerveDriveP)
-        self.swerveRBDPID.setI(self.swerveDriveI)
-        self.swerveRBDPID.setOutputRange(self.swerveDriveOutputMin, self.swerveDriveOutputMax)
+        self.swerveRBTEncoder.setPositionConversionFactor(self.swerveDriveConversionFactor)     
 
         self.swerveLFTPID = self.swerveLFTMotor.getPIDController()
         self.swerveLFTPID.setP(self.swerveTurnP)
@@ -94,17 +64,12 @@ class io:
         #Shooter System
         self.shooterTopWheelMotor = rev.CANSparkMax(9, rev.MotorType.kBrushless)
         self.shooterBottomWheelMotor = rev.CANSparkMax(10, rev.MotorType.kBrushless)
-        self.shooterIndexerMotor = rev.CANSparkMax(11, rev.MotorType.kBrushless)
-        self.shooterIntakeMotor = rev.CANSparkMax(12, rev.MotorType.kBrushless)
-        self.shooterIntakeElevationMotor = rev.CANSparkMax(13, rev.MotorType.kBrushless)
+        self.shooterIndexerMotor = rev.CANSparkMax(11, rev.MotorType.kBrushed)
+        self.shooterIntakeMotor = rev.CANSparkMax(12, rev.MotorType.kBrushed)
+        self.shooterIntakeElevationMotor = rev.CANSparkMax(13, rev.MotorType.kBrushed)
 
         self.shooterTopWheelEncoder = self.shooterTopWheelMotor.getEncoder()
         self.shooterBottomWheelEncoder = self.shooterBottomWheelMotor.getEncoder()
-        self.shooterIndexerEncoder = self.shooterIndexerMotor.getEncoder()
-        self.shooterIntakeEncoder = self.shooterIntakeMotor.getEncoder()
-        self.shooterIntakeElevationEncoder = self.shooterIntakeElevationMotor.getEncoder()
-
-        
 
         self.shooterWheelP = 0
         self.shooterWheelI = 0
@@ -128,21 +93,11 @@ class io:
         self.shooterIndexerOutputMax = 0
         self.shooterIndexerConversionFactor = 1
 
-        self.shooterIndexerPID = self.shooterIndexerMotor.getPIDController()
-        self.shooterIndexerPID.setP(self.shooterIndexerP)
-        self.shooterIndexerPID.setI(self.shooterIndexerI)
-        self.shooterIndexerPID.setOutputRange(self.shooterIndexerOutputMin, self.shooterIndexerOutputMax)
-
         self.shooterIntakeP = 0
         self.shooterIntakeI = 0
         self.shooterIntakeOutputMin = 0
         self.shooterIntakeOutputMax = 0
         self.shooterIntakeConversionFactor = 1
-
-        self.shooterIntakePID = self.shooterIntakeMotor.getPIDController()
-        self.shooterIntakePID.setP(self.shooterIntakeP)
-        self.shooterIntakePID.setI(self.shooterIntakeI)
-        self.shooterIntakePID.setOutputRange(self.shooterIntakeOutputMin, self.shooterIntakeOutputMax)
 
         self.shooterIntakeElevationP = 0
         self.shooterIntakeElevationI = 0
@@ -150,18 +105,11 @@ class io:
         self.shooterIntakeElevationOutputMax = 0
         self.shooterIntakeElevationConversionFactor = 1
 
-        self.shooterIntakeElevationPID = self.shooterIntakeElevationMotor.getPIDController()
-        self.shooterIntakeElevationPID.setP(self.shooterIntakeElevationP)
-        self.shooterIntakeElevationPID.setI(self.shooterIntakeElevationI)
-        self.shooterIntakeElevationPID.setOutputRange(self.shooterIntakeElevationOutputMin, self.shooterIntakeElevationOutputMax)
-
         self.shooterTopWheelEncoder.setVelocityConversionFactor(self.shooterWheelConversionFactor)
         self.shooterBottomWheelEncoder.setVelocityConversionFactor(self.shooterWheelConversionFactor)
-        self.shooterIndexerEncoder.setPositionConversionFactor(self.shooterIndexerConversionFactor)
-        self.shooterIntakeEncoder.setVelocityConversionFactor(self.shooterIntakeConversionFactor)
-        self.shooterIntakeElevationEncoder.setPositionConversionFactor(self.shooterIntakeElevationConversionFactor)
 
         #Control Panel System
+        """
         self.cpanelSpinMotor = rev.CANSparkMax(14, rev.MotorType.kBrushless)
         self.cpanelElevationMotor = rev.CANSparkMax(15, rev.MotorType.kBrushless)
 
@@ -172,26 +120,20 @@ class io:
         self.cpanelSpinEncoder.setPositionConversionFactor(self.cpanelSpinConversionFactor)
         self.cpanelElevationConversionFactor = 1
         self.cpanelElevationEncoder.setPositionConversionFactor(self.cpanelElevationConversionFactor)
-
+        """
 
         #Climbing System
         self.climberWinchAMotor = rev.CANSparkMax(16, rev.MotorType.kBrushless)
         self.climberWinchBMotor = rev.CANSparkMax(17, rev.MotorType.kBrushless)
 
-        self.climberWinchAEncoder = self.climberWinchAMotor.getEncoder()
-        self.climberWinchBEncoder = self.climberWinchBMotor.getEncoder()
 
-        self.climberWinchAConversionFactor = 1
-        self.climberWinchAEncoder.setVelocityConversionFactor(self.climberWinchAConversionFactor)
-        self.climberWinchBConversionFactor = 1
-        self.climberWinchBEncoder.setVelocityConversionFactor(self.climberWinchBConversionFactor)
-
-
-    def periodic(self, interfaces):
+    def robotPeriodic(self, interfaces):
+        """
         self.sd.putNumber("LFD Encoder", self.swerveLFDEncoder.getVelocity())
         self.sd.putNumber("RFD Encoder", self.swerveRFDEncoder.getVelocity())
         self.sd.putNumber("LBD Encoder", self.swerveLBDEncoder.getVelocity())
         self.sd.putNumber("RBD Encoder", self.swerveRBDEncoder.getVelocity())
+        """
         self.sd.putNumber("LFT Encoder", self.swerveLFTEncoder.getPosition())
         self.sd.putNumber("RFT Encoder", self.swerveRFTEncoder.getPosition())
         self.sd.putNumber("LBT Encoder", self.swerveLBTEncoder.getPosition())
@@ -206,4 +148,5 @@ class io:
         #self.sd.putNumber("Climber Winch A Encoder", self.climberWinchAEncoder.getVelocity())
         #self.sd.putNumber("Climber Winch B Encoder", self.climberWinchBEncoder.getVelocity())
 
-        print("io Periodic function called")
+    def teleopPeriodic(self, interfaces)
+        self.swerveLFDMotor.set(0)

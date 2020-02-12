@@ -7,8 +7,10 @@ import DriveManager
 
 class MyRobot(wpilib.TimedRobot):
     def robotInit(self):
+        self.ioInst = ioModule.io()
         self.interfaces = interfacesModule.interfaces()
         self.driveManagerInst = DriveManager.DriveManager()
+
         #self.io = ioModule.io()
         #self.subSysOne = subSystemOneModule.subSystemOne()
         #self.subSysTwo = subSystemTwoModule.subSystemTwo()
@@ -20,6 +22,7 @@ class MyRobot(wpilib.TimedRobot):
         #self.io.periodic(self.interfaces)
         #self.subSysOne.periodic(self.interfaces)
         #self.subSysTwo.periodic(self.interfaces)
+        self.ioInst.robotPeriodic()
         pass
 
     def autonomousInit(self):
