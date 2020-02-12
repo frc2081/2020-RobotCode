@@ -1,7 +1,6 @@
 import wpilib
 import rev
 import ctre
-import robot
 
 from networktables import NetworkTables
 
@@ -63,22 +62,19 @@ class io:
 
 
         #Shooter System
-        """
+        
         self.shooterTopWheelMotor = rev.CANSparkMax(9, rev.MotorType.kBrushless)
         self.shooterBottomWheelMotor = rev.CANSparkMax(10, rev.MotorType.kBrushless)
         self.shooterIndexerMotor = rev.CANSparkMax(11, rev.MotorType.kBrushed)
         self.shooterIntakeMotor = rev.CANSparkMax(12, rev.MotorType.kBrushed)
         self.shooterIntakeElevationMotor = rev.CANSparkMax(13, rev.MotorType.kBrushed)
-        """
+        
         self.shooterTopWheelEncoder = self.shooterTopWheelMotor.getEncoder()
         self.shooterTopWheelEncoder.setPosition(0)
 
         self.shooterBottomWheelEncoder = self.shooterBottomWheelMotor.getEncoder()
         self.shooterBottomWheelEncoder.setPosition(0)
-        
-        self.shooterIndexerEncoder.setPosition(0)
-        """
-        """
+
         self.shooterTopWheelP = 0
         self.shooterTopWheelI = 0
         self.shooterTopWheelOutputMin = 0
@@ -123,7 +119,7 @@ class io:
         self.shooterTopWheelEncoder.setVelocityConversionFactor(self.shooterWheelConversionFactor)
         self.shooterBottomWheelEncoder.setVelocityConversionFactor(self.shooterWheelConversionFactor)
         """
-        """
+        
 
         #Control Panel System
         """
@@ -139,14 +135,15 @@ class io:
         self.cpanelElevationEncoder.setPositionConversionFactor(self.cpanelElevationConversionFactor)
         """
 
+        self.photoSensorFront = wpilib.DigitalInput(0)
+        self.photoSensorBack = wpilib.DigitalInput(1)
+
         #Climbing System
         self.climberWinchAMotor = rev.CANSparkMax(16, rev.MotorType.kBrushless)
         self.climberWinchBMotor = rev.CANSparkMax(17, rev.MotorType.kBrushless)
 
 
     def robotPeriodic(self, interfaces):
-        """
-        """
         self.sd.putNumber("indexer P", self.shooterIndexerP)
         self.sd.putNumber("indexer I", self.shooterIndexerI)
 
@@ -168,14 +165,10 @@ class io:
         self.sd.putNumber("Shooter Bottom desired", interfaces.shooterBottomSpeed)
         self.sd.putNumber("Shooter Bottom actual", interfaces.shooterBottomSpeedEncoder)
 
-        #sensors
-        self.photoSensorFront = wpilib.DigitalInput(0)
-        self.photoSensorBack = wpilib.DigitalInput(1)
         #self.sd.putNumber("LFD Encoder", self.swerveLFDEncoder.getVelocity())
         #self.sd.putNumber("RFD Encoder", self.swerveRFDEncoder.getVelocity())
         #self.sd.putNumber("LBD Encoder", self.swerveLBDEncoder.getVelocity())
         #self.sd.putNumber("RBD Encoder", self.swerveRBDEncoder.getVelocity())
-        """
         #self.sd.putNumber("RFT Encoder", self.swerveRFTEncoder.getPosition())
         #self.sd.putNumber("LBT Encoder", self.swerveLBTEncoder.getPosition())
         #self.sd.putNumber("RBT Encoder", self.swerveRBTEncoder.getPosition())
@@ -189,37 +182,22 @@ class io:
         #self.sd.putNumber("Climber Winch A Encoder", self.climberWinchAEncoder.getVelocity())
         #self.sd.putNumber("Climber Winch B Encoder", self.climberWinchBEncoder.getVelocity())
         
-    def teleopPeriodic(self, interfaces)
-        self.swerveLFDMotor.set(0)
+    def teleopPeriodic(self, interfaces):
         interfaces.photoSensorFront = self.photoSensorFront.get() #under the shooter
         interfaces.photoSensorBack = self.photoSensorBack.get() #away from the shooter
         
-        interfaces.indexerEncoder = self.shooterIndexerEncoder.getPosition()
-        interfaces.shooterTopSpeedEncoder = self.shooterTopWheelEncoder.getPosition()
-        interfaces.shooterBottomSpeedEncoder = self.shooterBottomWheelEncoder.getPosition()
-
-        if (self.sd.getNumber("indexer P", 0)) != self.shooterIndexerP:
-            self.shooterIndexerP = self.sd.getNumber("indexer P", 0)
-
-        if (self.sd.getNumber("indexer I", 0)) != self.shooterIndexerI:
-            self.shooterIndexerI = self.sd.getNumber("indexer I", 0)
-
-        self.shooterIndexerPID.setP(self.shooterIndexerP)
-        self.shooterIndexerPID.setI(self.shooterIndexerI)
-        self.sd.putNumber("indexer desired", interfaces.indexerAngle)
-        self.sd.putNumber("indexer actual", interfaces.indexerEncoder)        
-
+        interfaces.shooterTopSpeedEncoder = self.shooterTopWheelEncoder.getVelocity()
+        interfaces.shooterBottomSpeedEncoder = self.shooterBottomWheelEncoder.getVelocity()
 
         #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 
         if (self.sd.getNumber("Shooter Top P", 0)) != self.shooterTopWheelP:
             self.shooterTopWheelP = self.sd.getNumber("Shooter Top P", 0)
+            self.shooterTopWheelPID.setP(self.shooterTopWheelP)
 
         if (self.sd.getNumber("Shooter Top I", 0)) != self.shooterTopWheelI:
             self.shooterTopWheelI = self.sd.getNumber("Shooter Top I", 0)
-
-        self.shooterTopWheelPID.setP(self.shooterTopWheelP)
-        self.shooterTopWheelPID.setI(self.shooterTopWheelI)
+            self.shooterTopWheelPID.setI(self.shooterTopWheelI)
         
         self.sd.putNumber("Shooter Top desired", interfaces.shooterTopSpeed)
         self.sd.putNumber("Shooter Top actual", interfaces.shooterTopSpeedEncoder)
@@ -228,18 +206,17 @@ class io:
 
         if (self.sd.getNumber("Shooter Bottom P", 0)) != self.shooterBottomWheelP:
             self.shooterTopBottomP = self.sd.getNumber("Shooter Bottom P", 0)
+            self.shooterBottomWheelPID.setP(self.shooterBottomWheelP)
 
         if (self.sd.getNumber("Shooter Bottom I", 0)) != self.shooterBottomWheelI:
             self.shooterBottomWheelI = self.sd.getNumber("Shooter Bottom I", 0)
-
-        self.shooterBottomWheelPID.setP(self.shooterBottomWheelP)
-        self.shooterBottomWheelPID.setI(self.shooterBottomWheelI)
+            self.shooterBottomWheelPID.setI(self.shooterBottomWheelI)
         
         self.sd.putNumber("Shooter Bottom desired", interfaces.shooterBottomSpeed)
         self.sd.putNumber("Shooter Bottom actual", interfaces.shooterBottomSpeedEncoder)
 
-    def teleopperiodic(self, interfaces):
-        self.shooterIndexerPID.setReference(interfaces.indexerAngle, rev.ControlType.kPosition)
+    def teleopPeriodic(self, interfaces):
+        pass
       
         #self.shooterIntakeMotor
         #self.shooterIntakeElevationMotor

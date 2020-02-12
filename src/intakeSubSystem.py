@@ -37,10 +37,10 @@ class intakeSystem():
         self.mIntakeDesPos = 0 #internal desired position of the intake arm
         self.mIntakeSpeed = 0 #internal desired speed of the intake wheels
 
-    def intakeInit(self, interfaces):
+    def init(self, interfaces):
         interfaces.intakeDesiredPos = 0
 
-    def intakePeriodic(self, interfaces):
+    def teleopPeriodic(self, interfaces):
         
         self.mIntakeActPos = interfaces.intakeActualPos
 
