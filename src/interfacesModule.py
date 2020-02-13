@@ -15,8 +15,7 @@ class interfaces:
     dMoveY = 0
     dBallIntake = False
     #self.dBallOther = False
-    dClimbRelease = False
-    dClimbWinch = 0
+    dClimbWinchPower = 0
 
     #mechanism controller
     mSpinnyRaise = False
@@ -34,14 +33,14 @@ class interfaces:
     #\/---------\/
 
     #swerve
-    driveMotor1 = 0
-    driveMotor2 = 0
-    driveMotor3 = 0
-    driveMotor4 = 0
-    turnMotor1 = 0
-    turnMotor2 = 0
-    turnMotor3 = 0
-    turnMotor4 = 0
+    swerveLFDDesSpd = 0
+    swerveRFDDesSpd = 0
+    swerveLBDDesSpd = 0
+    swerveRBDDesSpd = 0
+    swerveLFTDesAng = 0
+    swerveRFTDesAng = 0
+    swerveLBTDesAng = 0
+    swerveRBTDesAng = 0
 
     #shooter
     #shooter speed is in rpm
@@ -54,6 +53,11 @@ class interfaces:
     photoSensorBack = False
     indexerEncoder = 0
 
+    indexerManMode = False
+    indexerManPower = 0
+    shooterManTopDesSpd = 0
+    shooterManBotDesSpd = 0
+
     #control panel
     spinnerUpDown = 0
     spinnerSpeed = 0
@@ -64,12 +68,6 @@ class interfaces:
     intakeActualPos = 0
     intakeDesiredPos = 0
     intakeBallDetected = False
-
-    #climber
-    #climber release is an angle (maybe)
-    climberRelease = 0
-    climberWinchSpeed = 0
-
 
     def __init__(self):
         pass

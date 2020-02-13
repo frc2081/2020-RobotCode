@@ -112,11 +112,15 @@ class DriveManager:
             self._swervelib.whl.angle3 = (self._swervelib.whl.angle3 + 180) % 360
             self._swervelib.whl.speed3 *= -1
 
-    def ApplyPIDControl(self):
-        self._swervelib.whl.speed1 *= self._maxdrivespeed
-        self._swervelib.whl.speed2 *= self._maxdrivespeed
-        self._swervelib.whl.speed3 *= self._maxdrivespeed
-        self._swervelib.whl.speed4 *= self._maxdrivespeed
+        interfaces.swerveLFDDesSpd = self._swervelib.whl.speed2
+        interfaces.swerveRFDDesSpd = self._swervelib.whl.speed1
+        interfaces.swerveLBDDesSpd = self._swervelib.whl.speed3
+        interfaces.swerveRBDDesSpd = self._swervelib.whl.speed4
+
+        interfaces.swerveLFDDesAng = self._swervelib.whl.angle2
+        interfaces.swerveRFDDesAng = self._swervelib.whl.angle1
+        interfaces.swerveLBDDesAng = self._swervelib.whl.angle3
+        interfaces.swerveRBDDesAng = self._swervelib.whl.angle4
 
     def UpdateDashboard(self):
         #Swerve Desired Wheel Vectors

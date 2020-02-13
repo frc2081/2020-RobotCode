@@ -62,7 +62,6 @@ class io:
 
 
         #Shooter System
-        
         self.shooterTopWheelMotor = rev.CANSparkMax(9, rev.MotorType.kBrushless)
         self.shooterBottomWheelMotor = rev.CANSparkMax(10, rev.MotorType.kBrushless)
         self.shooterIndexerMotor = rev.CANSparkMax(11, rev.MotorType.kBrushed)
@@ -216,7 +215,32 @@ class io:
         self.sd.putNumber("Shooter Bottom actual", interfaces.shooterBottomSpeedEncoder)
 
     def teleopPeriodic(self, interfaces):
-        pass
       
-        #self.shooterIntakeMotor
+        if(interfaces.indexerManMode == True):
+            self.indexerMotor.set(interfaces.indexerManPower)
+            self.shooterTopWheelPID.setReference(interfaces.shooterManTopDesSpd , rev.ControlType.kVelocity)
+            self.shooterBottomWheelPID.setReference(interfaces.shooterManBotDesSpd, rev.ControlType.kVelocity)
+        else:
+            #**********NEED INDEXER DESIRED ANGLE SET HERE**********
+            self.shooterTopWheelPID.setReference(interfaces.shooterTopSpeed, rev.ControlType.kVelocity)
+            self.shooterBottomWheelPID.setReference(interfaces.shooterBottomSpeed, rev.ControlType.kVelocity)            
+        
+        
+        self.shooterIntakeMotor.set(interfaces.intakeWheelSpeed)
+        #need intake angle command set here - need the PID controller for it, too
+
+        self.climberWinchAMotor.set(interfaces.dClimbWinchPower)  
+        self.climberWinchBMotor.set(interfaces.dClimbWinchPower)  
+
+        #swerve motors
+        self.swerveLFDMotor.set(interfaces.swerveLFDDesSpd)
+        self.swerveRFDMotor.set(interfaces.swerveRFDDesSpd)
+        self.swerveLBDMotor.set(interfaces.swerveLBDDesSpd)
+        self.swerveRBDMotor.set(interfaces.swerveRBDDesSpd)
+
+        self.swerveLFTPID.setReference(interfaces.swerveLFTDesAng, rev.ControlType.kVelocity)
+        self.swerveLFTPID.setReference(interfaces.swerveRFTDesAng, rev.ControlType.kVelocity)
+        self.swerveLFTPID.setReference(interfaces.swerveLBTDesAng, rev.ControlType.kVelocity)
+        self.swerveLFTPID.setReference(interfaces.swerveRBTDesAng, rev.ControlType.kVelocity) 
+   
         #self.shooterIntakeElevationMotor

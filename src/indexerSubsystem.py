@@ -7,6 +7,9 @@ from networktables import NetworkTables
 
 class indexer():
 
+    shooterSpdTol = 50 # Tolerance on target shooter speed to meet before shooting
+    
+
     class indexerDuck(IntEnum):
         ballInFrontOfSensor = 1
         indexingBall = 2
@@ -25,7 +28,7 @@ class indexer():
             interfaces.shooterTopSpeed = 100
             interfaces.shooterBottomSpeed = 100
             #Do the thing with the >< so it can index and do the thing idk what saying lets just do it!!!!
-            if ((interfaces.shooterTopSpeedEncoder <= self.shooterTopSpeed + 5) and (interfaces.shooterTopSpeedEncoder >= self.shooterTopSpeed - 5) and (interfaces.shooterBottomSpeedEncoder <= self.shooterBottomSpeed + 5) and (interfaces.shooterBottomSpeedEncoder >= self.shooterBottomSpeed - 5)):
+            if ((interfaces.shooterTopSpeedEncoder <= self.shooterTopSpeed + shooterSpdTol) and (interfaces.shooterTopSpeedEncoder >= self.shooterTopSpeed - shooterSpdTol) and (interfaces.shooterBottomSpeedEncoder <= self.shooterBottomSpeed + shooterSpdTol) and (interfaces.shooterBottomSpeedEncoder >= self.shooterBottomSpeed - shooterSpdTol)):
                 self.state = self.indexerDuck.indexingBall
 
         if self.state == self.indexerDuck.noBallInFrontOfSensor: 

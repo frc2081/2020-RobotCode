@@ -39,8 +39,10 @@ class MyRobot(wpilib.TimedRobot):
 
     def teleopPeriodic(self):
         self.controllerManagerInst.controllerManagerPeriodic(self.interfaces)
-        self.ioInst.teleopPeriodic(self.interfaces)
+
         self.intake.teleopPeriodic(self.interfaces)
+        
+        self.ioInst.teleopPeriodic(self.interfaces)
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
