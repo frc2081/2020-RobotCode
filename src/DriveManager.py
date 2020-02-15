@@ -43,12 +43,12 @@ class DriveManager:
             
         return ramped
 
-    def DriveManagerInit(self):
+    def DriveManagerInit(self, interfaces):
         pass
 
     def DriveManagerPeriodic(self, interfaces):
         self.CalculateVectors(interfaces)
-        self.ApplyIntellegintSwerve()
+        self.ApplyIntellegintSwerve(interfaces)
         self.UpdateDashboard()
 
     def DriveManagerAutoPeriodic(self, interfaces):
@@ -94,7 +94,7 @@ class DriveManager:
 
     #This function modifies the output of the swerve library to control the turn motors more intelligently
     #It works to prevent the wheels from turning completely around when they would only need to move a bit and then reverse to reach a target vector
-    def ApplyIntellegintSwerve(self):
+    def ApplyIntellegintSwerve(self, interfaces):
         if (abs(self._swervelib.whl.angle1 - self._currangrf) > 90 and
            (self._swervelib.whl.angle1 - self._currangrf < 270)):
             self._swervelib.whl.angle1 = (self._swervelib.whl.angle1 + 180) % 360
@@ -124,20 +124,12 @@ class DriveManager:
 
     def UpdateDashboard(self):
         #Swerve Desired Wheel Vectors
-        wpilib.SmartDashboard.putNumber("Swerve Left Front Angle Desired", self._swervelib.whl.angle2)	
-        wpilib.SmartDashboard.putNumber("Swerve Right Front Angle Desired", self._swervelib.whl.angle1)	
-        wpilib.SmartDashboard.putNumber("Swerve Left Back Angle Desired", self._swervelib.whl.angle3)	
-        wpilib.SmartDashboard.putNumber("Swerve Right Back Angle Desired", self._swervelib.whl.angle4)	
+        wpilib.SmartDashboard.putNumber("Swerve LF Angle Des", self._swervelib.whl.angle2)	
+        wpilib.SmartDashboard.putNumber("Swerve RF Angle Des", self._swervelib.whl.angle1)	
+        wpilib.SmartDashboard.putNumber("Swerve LB Angle Des", self._swervelib.whl.angle3)	
+        wpilib.SmartDashboard.putNumber("Swerve RB Angle Des", self._swervelib.whl.angle4)	
 
-        wpilib.SmartDashboard.putNumber("Swerve Left Front Speed Desired", self._swervelib.whl.speed2)	
-        wpilib.SmartDashboard.putNumber("Swerve Right Front Speed Desired", self._swervelib.whl.speed1)	
-        wpilib.SmartDashboard.putNumber("Swerve Left Back Speed Desired", self._swervelib.whl.speed3)	
-        wpilib.SmartDashboard.putNumber("Swerve Right Back Speed Desired", self._swervelib.whl.speed4)
-
-        #Swerve Actual Wheel Vectors     **encoders**
-        #encoder location
-        wpilib.SmartDashboard.putNumber("Swerve Left Front Angle Actual", self._curranglf) #, io
-        wpilib.SmartDashboard.putNumber("Swerve Right Front Angle Actual", self._currangrf) #, io
-        wpilib.SmartDashboard.putNumber("Swerve Left Back Angle Actual", self._curranglb) #, io
-        wpilib.SmartDashboard.putNumber("Swerve Right Back Angle Actual", self._currangrb) #, io
-
+        wpilib.SmartDashboard.putNumber("Swerve LF Speed Des", self._swervelib.whl.speed2)	
+        wpilib.SmartDashboard.putNumber("Swerve RF Speed Des", self._swervelib.whl.speed1)	
+        wpilib.SmartDashboard.putNumber("Swerve LB Speed Des", self._swervelib.whl.speed3)	
+        wpilib.SmartDashboard.putNumber("Swerve RB Speed Des", self._swervelib.whl.speed4)

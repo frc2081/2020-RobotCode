@@ -9,20 +9,38 @@ class io:
         self.sd = NetworkTables.getTable("SmartDashboard")
 
         #Swerve System
-        self.swerveLFDMotor = ctre.WPI_TalonSRX(1)
-        self.swerveRFDMotor = ctre.WPI_TalonSRX(2)
-        self.swerveLBDMotor = ctre.WPI_TalonSRX(3)
-        self.swerveRBDMotor = ctre.WPI_TalonSRX(4)
+        self.swerveLFDMotor = ctre.WPI_TalonSRX(2)
+        self.swerveRFDMotor = ctre.WPI_TalonSRX(3)
+        self.swerveLBDMotor = ctre.WPI_TalonSRX(4)
+        self.swerveRBDMotor = ctre.WPI_TalonSRX(1)
         self.swerveLFTMotor = rev.CANSparkMax(30, rev.MotorType.kBrushless)
         self.swerveRFTMotor = rev.CANSparkMax(33, rev.MotorType.kBrushless)
         self.swerveLBTMotor = rev.CANSparkMax(31, rev.MotorType.kBrushless)
         self.swerveRBTMotor = rev.CANSparkMax(32, rev.MotorType.kBrushless)
 
+        #Climbing System
+        self.climberWinchAMotor = rev.CANSparkMax(21, rev.MotorType.kBrushless)
+        self.climberWinchBMotor = rev.CANSparkMax(22, rev.MotorType.kBrushless)
+        self.climberRaiseMotor = rev.CANSparkMax(29, rev.MotorType.kBrushed)
+
+        #Shooter System
+        self.shooterTopWheelMotor = rev.CANSparkMax(34, rev.MotorType.kBrushless)
+        self.shooterBottomWheelMotor = rev.CANSparkMax(35, rev.MotorType.kBrushless)
+        self.shooterIndexerMotor = rev.CANSparkMax(24, rev.MotorType.kBrushed)
+        self.shooterIntakeMotor = rev.CANSparkMax(20, rev.MotorType.kBrushed)
+        self.shooterIntakeArmMotor = rev.CANSparkMax(26, rev.MotorType.kBrushed)
+
+        #Encoders
         self.swerveLFTEncoder = self.swerveLFTMotor.getEncoder()
         self.swerveRFTEncoder = self.swerveRFTMotor.getEncoder()
         self.swerveLBTEncoder = self.swerveLBTMotor.getEncoder()
         self.swerveRBTEncoder = self.swerveRBTMotor.getEncoder()
 
+        self.intakeArmEncoder = self.shooterIntakeArmMotor.getEncoder()
+        #self.indexerEncoder = self.shooterIndexerMotor.getAlternateEncoder(rev.CANEncoder.AlternateEncoderType.kQuadrature, 8192)
+        self.intakePhotoSensor = wpilib.DigitalInput(4)
+
+        #PID Setup
         self.swerveDriveP = 0.0005
         self.swerveDriveI = 0
         self.swerveDriveOutputMin = -1
@@ -59,14 +77,6 @@ class io:
         self.swerveRBTPID.setP(self.swerveTurnP)
         self.swerveRBTPID.setI(self.swerveTurnI)
         self.swerveRBTPID.setOutputRange(self.swerveTurnOutputMin, self.swerveTurnOutputMax)
-
-
-        #Shooter System
-        self.shooterTopWheelMotor = rev.CANSparkMax(34, rev.MotorType.kBrushless)
-        self.shooterBottomWheelMotor = rev.CANSparkMax(35, rev.MotorType.kBrushless)
-        self.shooterIndexerMotor = rev.CANSparkMax(24, rev.MotorType.kBrushed)
-        self.shooterIntakeMotor = rev.CANSparkMax(20, rev.MotorType.kBrushed)
-        self.shooterIntakeElevationMotor = rev.CANSparkMax(26, rev.MotorType.kBrushed)
         
         self.shooterTopWheelEncoder = self.shooterTopWheelMotor.getEncoder()
         self.shooterTopWheelEncoder.setPosition(0)
@@ -74,33 +84,41 @@ class io:
         self.shooterBottomWheelEncoder = self.shooterBottomWheelMotor.getEncoder()
         self.shooterBottomWheelEncoder.setPosition(0)
 
-        self.shooterTopWheelP = 0
-        self.shooterTopWheelI = 0
-        self.shooterTopWheelOutputMin = 0
-        self.shooterTopWheelOutputMax = 0
-        self.shooterTopWheelConversionFactor = 1
-
-        self.shooterBottomWheelP = 0
-        self.shooterBottomWheelI = 0
-        self.shooterBottomWheelOutputMin = 0
-        self.shooterBottomWheelOutputMax = 0
-        self.shooterBottomWheelConversionFactor = 1
+        self.shooterP = 0.005
+        self.shooterI = 0
+        self.shooterF = 0
+        self.shooterOutputMin = 0
+        self.shooterOutputMax = 0
+        self.shooterConversionFactor = 1
 
         self.shooterTopWheelPID = self.shooterTopWheelMotor.getPIDController()
-        self.shooterTopWheelPID.setP(self.shooterTopWheelP)
-        self.shooterTopWheelPID.setI(self.shooterTopWheelI)
-        self.shooterTopWheelPID.setOutputRange(self.shooterTopWheelOutputMin, self.shooterTopWheelOutputMax)
+        self.shooterTopWheelPID.setP(self.shooterP)
+        self.shooterTopWheelPID.setI(self.shooterI)
+        self.shooterTopWheelPID.setF(self.shooterF)
+        self.shooterTopWheelPID.setOutputRange(self.shooterOutputMin, self.shooterOutputMax)
 
         self.shooterBottomWheelPID = self.shooterBottomWheelMotor.getPIDController()
-        self.shooterBottomWheelPID.setP(self.shooterBottomWheelP)
-        self.shooterBottomWheelPID.setI(self.shooterBottomWheelI)
-        self.shooterBottomWheelPID.setOutputRange(self.shooterBottomWheelOutputMin, self.shooterBottomWheelOutputMax)
+        self.shooterBottomWheelPID.setP(self.shooterP)
+        self.shooterBottomWheelPID.setI(self.shooterI)
+        self.shooterBottomWheelPID.setF(self.shooterF)
+        self.shooterBottomWheelPID.setOutputRange(self.shooterOutputMin, self.shooterOutputMax)
 
         self.shooterIndexerP = 0.0005
         self.shooterIndexerI = 0
         self.shooterIndexerOutputMin = -1
         self.shooterIndexerOutputMax = 1
         self.shooterIndexerConversionFactor = 360
+
+        self.intakeArmPID = self.shooterIntakeArmMotor.getPIDController()
+        self.intakeArmP = 0.005
+        self.intakeArmI = 0
+        self.intakeArmOutputMin = -1
+        self.intakeArmOutputMax = 1
+        self.intakeArmConversionFactor = 0.086 #42cpr * 100:1 gear ratio / 360 degress/rev = 11.66 counts per degree = .086 degrees per count
+    
+        self.intakeArmPID.setP(self.intakeArmP)
+        self.intakeArmPID.setI(self.intakeArmI)
+        self.intakeArmPID.setOutputRange(self.intakeArmOutputMin, self.intakeArmOutputMax)
 
         """
         self.shooterIntakeP = 0
@@ -114,118 +132,73 @@ class io:
         self.shooterIntakeElevationOutputMin = 0
         self.shooterIntakeElevationOutputMax = 0
         self.shooterIntakeElevationConversionFactor = 1
-
-        self.shooterTopWheelEncoder.setVelocityConversionFactor(self.shooterWheelConversionFactor)
-        self.shooterBottomWheelEncoder.setVelocityConversionFactor(self.shooterWheelConversionFactor)
         """
+
+
+    def robotPeriodic(self, interfaces):        
+        interfaces.shooterTopSpeedEncoder = self.shooterTopWheelEncoder.getVelocity()
+        interfaces.shooterBottomSpeedEncoder = self.shooterBottomWheelEncoder.getVelocity()
+        interfaces.intakeActualPos = self.intakeArmEncoder.getPosition()
+       # interfaces.indexerEncoder = self.indexerEncoder.getPosition()
         
-
-        #Control Panel System
-        """
-        self.cpanelSpinMotor = rev.CANSparkMax(14, rev.MotorType.kBrushless)
-        self.cpanelElevationMotor = rev.CANSparkMax(15, rev.MotorType.kBrushless)
-
-        self.cpanelSpinEncoder = self.cpanelSpinMotor.getEncoder()
-        self.cpanelElevationEncoder = self.cpanelElevationMotor.getEncoder()
-
-        self.cpanelSpinConversionFactor = 1
-        self.cpanelSpinEncoder.setPositionConversionFactor(self.cpanelSpinConversionFactor)
-        self.cpanelElevationConversionFactor = 1
-        self.cpanelElevationEncoder.setPositionConversionFactor(self.cpanelElevationConversionFactor)
-        """
-
-        self.photoSensorFront = wpilib.DigitalInput(0)
-        self.photoSensorBack = wpilib.DigitalInput(1)
-
-        #Climbing System
-        self.climberWinchAMotor = rev.CANSparkMax(21, rev.MotorType.kBrushless)
-        self.climberWinchBMotor = rev.CANSparkMax(22, rev.MotorType.kBrushless)
-        self.climberRaiseMotor = rev.CanSparkMax(29, rev.MotorType.kBrushed)
-
-
-    def robotPeriodic(self, interfaces):
-        self.sd.putNumber("indexer P", self.shooterIndexerP)
-        self.sd.putNumber("indexer I", self.shooterIndexerI)
+        interfaces.intakeBallDetected = self.intakePhotoSensor.get()
 
         self.sd.putNumber("indexer desired", interfaces.indexerAngle)
         self.sd.putNumber("indexer actual", interfaces.indexerEncoder)
-
-        #AAAAAAAAAAAAAAAAAAAAAAAAAAAA
-
-        self.sd.putNumber("Shooter Top P", self.shooterTopWheelP)
-        self.sd.putNumber("Shooter Top I", self.shooterTopWheelI)
-
         self.sd.putNumber("Shooter Top desired", interfaces.shooterTopSpeed)
         self.sd.putNumber("Shooter Top actual", interfaces.shooterTopSpeedEncoder)
-        #AAAAAAAAAAAAAAAAAAAAAAAAAAAAa
-
-        self.sd.putNumber("Shooter Bottom P", self.shooterIndexerP)
-        self.sd.putNumber("Shooter Bottom I", self.shooterIndexerI)
-
         self.sd.putNumber("Shooter Bottom desired", interfaces.shooterBottomSpeed)
         self.sd.putNumber("Shooter Bottom actual", interfaces.shooterBottomSpeedEncoder)
+
+        self.sd.putNumber("Intake Arm Angle", interfaces.intakeActualPos)
+        self.sd.putNumber("Ball Detected", interfaces.intakeBallDetected)
 
         #self.sd.putNumber("LFD Encoder", self.swerveLFDEncoder.getVelocity())
         #self.sd.putNumber("RFD Encoder", self.swerveRFDEncoder.getVelocity())
         #self.sd.putNumber("LBD Encoder", self.swerveLBDEncoder.getVelocity())
         #self.sd.putNumber("RBD Encoder", self.swerveRBDEncoder.getVelocity())
-        #self.sd.putNumber("RFT Encoder", self.swerveRFTEncoder.getPosition())
-        #self.sd.putNumber("LBT Encoder", self.swerveLBTEncoder.getPosition())
-        #self.sd.putNumber("RBT Encoder", self.swerveRBTEncoder.getPosition())
-        #self.sd.putNumber("Top Shooter Wheel Encoder", self.shooterTopWheelEncoder.getVelocity())
-        #self.sd.putNumber("Bottom Shooter Wheel Encoder", self.shooterBottomWheelEncoder.getVelocity())
-        #self.sd.putNumber("Shooter Indexer Encoder", self.shooterIndexerEncoder.getPosition())
-        #self.sd.putNumber("Intake Encoder", self.shooterIntakeEncoder.getVelocity())
-        #self.sd.putNumber("Intake Elevation Encoder", self.shooterIntakeElevationEncoder.getPosition())
-        #self.sd.putNumber("Control Panel Spin Encoder", self.cpanelSpinEncoder.getPosition())
-        #self.sd.putNumber("Control Panel Elevation Encoder", self.cpanelElevationEncoder.getPosition())
-        #self.sd.putNumber("Climber Winch A Encoder", self.climberWinchAEncoder.getVelocity())
-        #self.sd.putNumber("Climber Winch B Encoder", self.climberWinchBEncoder.getVelocity())
-        
-    def teleopPeriodic(self, interfaces):
-        interfaces.photoSensorFront = self.photoSensorFront.get() #under the shooter
-        interfaces.photoSensorBack = self.photoSensorBack.get() #away from the shooter
-        
-        interfaces.shooterTopSpeedEncoder = self.shooterTopWheelEncoder.getVelocity()
-        interfaces.shooterBottomSpeedEncoder = self.shooterBottomWheelEncoder.getVelocity()
+        self.sd.putNumber("RFT Encoder", self.swerveRFTEncoder.getPosition())
+        self.sd.putNumber("LBT Encoder", self.swerveLBTEncoder.getPosition())
+        self.sd.putNumber("RBT Encoder", self.swerveRBTEncoder.getPosition())
+        self.sd.putNumber("LFT Encoder", self.swerveLFTEncoder.getPosition())
 
-        #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        shooterNewP = self.sd.getNumber("Shooter P", 0)
+        shooterNewI = self.sd.getNumber("Shooter I", 0)
+        shooterNewF = self.sd.getNumber("Shooter F", 0)
 
-        if (self.sd.getNumber("Shooter Top P", 0)) != self.shooterTopWheelP:
-            self.shooterTopWheelP = self.sd.getNumber("Shooter Top P", 0)
-            self.shooterTopWheelPID.setP(self.shooterTopWheelP)
+        if (shooterNewP) != self.shooterP:
+            self.shooterP = shooterNewP
+            self.shooterTopWheelPID.setP(self.shooterP)           
+            self.shooterBottomWheelPID.setP(self.shooterP)
 
-        if (self.sd.getNumber("Shooter Top I", 0)) != self.shooterTopWheelI:
-            self.shooterTopWheelI = self.sd.getNumber("Shooter Top I", 0)
-            self.shooterTopWheelPID.setI(self.shooterTopWheelI)
-        
-        self.sd.putNumber("Shooter Top desired", interfaces.shooterTopSpeed)
-        self.sd.putNumber("Shooter Top actual", interfaces.shooterTopSpeedEncoder)
+        if (shooterNewI) != self.shooterI:
+            self.shooterI = shooterNewI
+            self.shooterTopWheelPID.setI(self.shooterI)       
+            self.shooterBottomWheelPID.setI(self.shooterI)   
 
-        #AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+        if (shooterNewF) != self.shooterF:
+            self.shooterF = shooterNewF
+            self.shooterTopWheelPID.setF(self.shooterF)       
+            self.shooterBottomWheelPID.setF(self.shooterF)    
 
-        if (self.sd.getNumber("Shooter Bottom P", 0)) != self.shooterBottomWheelP:
-            self.shooterTopBottomP = self.sd.getNumber("Shooter Bottom P", 0)
-            self.shooterBottomWheelPID.setP(self.shooterBottomWheelP)
+    def teleopInit(self, interfaces):
+        self.sd.putNumber("Shooter P", self.shooterP)
+        self.sd.putNumber("Shooter I", self.shooterI)
+        self.sd.putNumber("Shooter F", self.shooterF)
 
-        if (self.sd.getNumber("Shooter Bottom I", 0)) != self.shooterBottomWheelI:
-            self.shooterBottomWheelI = self.sd.getNumber("Shooter Bottom I", 0)
-            self.shooterBottomWheelPID.setI(self.shooterBottomWheelI)
-        
-        self.sd.putNumber("Shooter Bottom desired", interfaces.shooterBottomSpeed)
-        self.sd.putNumber("Shooter Bottom actual", interfaces.shooterBottomSpeedEncoder)
+        self.sd.putNumber("indexer P", self.shooterIndexerP)
+        self.sd.putNumber("indexer I", self.shooterIndexerI)
 
     def teleopPeriodic(self, interfaces):
       
         if(interfaces.indexerManMode == True):
-            self.indexerMotor.set(interfaces.indexerManPower)
+            self.shooterIndexerMotor.set(interfaces.indexerManPower)
             self.shooterTopWheelPID.setReference(interfaces.shooterManTopDesSpd , rev.ControlType.kVelocity)
             self.shooterBottomWheelPID.setReference(interfaces.shooterManBotDesSpd, rev.ControlType.kVelocity)
         else:
             #**********NEED INDEXER DESIRED ANGLE SET HERE**********
             self.shooterTopWheelPID.setReference(interfaces.shooterTopSpeed, rev.ControlType.kVelocity)
             self.shooterBottomWheelPID.setReference(interfaces.shooterBottomSpeed, rev.ControlType.kVelocity)            
-        
         
         self.shooterIntakeMotor.set(interfaces.intakeWheelSpeed)
         #need intake angle command set here - need the PID controller for it, too
@@ -245,6 +218,4 @@ class io:
         self.swerveLFTPID.setReference(interfaces.swerveLBTDesAng, rev.ControlType.kVelocity)
         self.swerveLFTPID.setReference(interfaces.swerveRBTDesAng, rev.ControlType.kVelocity) 
 
-
-   
-        #self.shooterIntakeElevationMotor
+        self.intakeArmPID.setReference(interfaces.intakeDesiredPos, rev.ControlType.kPosition)

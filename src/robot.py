@@ -13,9 +13,10 @@ class MyRobot(wpilib.TimedRobot):
         self.interfaces = interfacesModule.interfaces()
         self.interfaces.interfacesInit()       
          
-        self.ioInst = ioModule.io(self.interfaces)
+        #self.ioInst = ioModule.io(self.interfaces)
 
         self.driveManagerInst = DriveManager.DriveManager()
+        self.driveManagerInst.DriveManagerInit(self.interfaces)
 
         self.controllerManagerInst = controllerManager.controllerManager()
         self.controllerManagerInst.controllerInit(self.interfaces)
@@ -27,9 +28,10 @@ class MyRobot(wpilib.TimedRobot):
         self.intake.init(self.interfaces)
 
     def robotPeriodic(self):
-        self.indexerSubsystemInst.indexerPeriodic(self.interfaces)
-        self.ioInst.robotPeriodic(self.interfaces)
-        self.controllerManagerInst.controllerManagerSmartDashboard(self.interfaces)
+        pass
+       
+        #self.ioInst.robotPeriodic(self.interfaces)
+        #self.controllerManagerInst.controllerManagerSmartDashboard(self.interfaces)
 
     def autonomousInit(self):
         pass
@@ -37,12 +39,18 @@ class MyRobot(wpilib.TimedRobot):
     def autonomousPeriodic(self):
         pass
 
-    def teleopPeriodic(self):
-        self.controllerManagerInst.controllerManagerPeriodic(self.interfaces)
+    def teleopInit(self):
+        pass
+        #self.ioInst.teleopInit(self.interfaces)
 
-        self.intake.teleopPeriodic(self.interfaces)
-        
-        self.ioInst.teleopPeriodic(self.interfaces)
+    def teleopPeriodic(self):
+        pass
+        self.controllerManagerInst.controllerManagerPeriodic(self.interfaces)
+        self.driveManagerInst.DriveManagerPeriodic(self.interfaces)
+        #self.indexerSubsystemInst.indexerPeriodic(self.interfaces)
+        #self.intake.teleopPeriodic(self.interfaces)
+
+        #self.ioInst.teleopPeriodic(self.interfaces)
 
 if __name__ == "__main__":
     wpilib.run(MyRobot)
