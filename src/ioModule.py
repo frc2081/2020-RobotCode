@@ -13,10 +13,10 @@ class io:
         self.swerveRFDMotor = ctre.WPI_TalonSRX(2)
         self.swerveLBDMotor = ctre.WPI_TalonSRX(3)
         self.swerveRBDMotor = ctre.WPI_TalonSRX(4)
-        self.swerveLFTMotor = rev.CANSparkMax(5, rev.MotorType.kBrushless)
-        self.swerveRFTMotor = rev.CANSparkMax(6, rev.MotorType.kBrushless)
-        self.swerveLBTMotor = rev.CANSparkMax(7, rev.MotorType.kBrushless)
-        self.swerveRBTMotor = rev.CANSparkMax(8, rev.MotorType.kBrushless)
+        self.swerveLFTMotor = rev.CANSparkMax(30, rev.MotorType.kBrushless)
+        self.swerveRFTMotor = rev.CANSparkMax(33, rev.MotorType.kBrushless)
+        self.swerveLBTMotor = rev.CANSparkMax(31, rev.MotorType.kBrushless)
+        self.swerveRBTMotor = rev.CANSparkMax(32, rev.MotorType.kBrushless)
 
         self.swerveLFTEncoder = self.swerveLFTMotor.getEncoder()
         self.swerveRFTEncoder = self.swerveRFTMotor.getEncoder()
@@ -62,11 +62,11 @@ class io:
 
 
         #Shooter System
-        self.shooterTopWheelMotor = rev.CANSparkMax(9, rev.MotorType.kBrushless)
-        self.shooterBottomWheelMotor = rev.CANSparkMax(10, rev.MotorType.kBrushless)
-        self.shooterIndexerMotor = rev.CANSparkMax(11, rev.MotorType.kBrushed)
-        self.shooterIntakeMotor = rev.CANSparkMax(12, rev.MotorType.kBrushed)
-        self.shooterIntakeElevationMotor = rev.CANSparkMax(13, rev.MotorType.kBrushed)
+        self.shooterTopWheelMotor = rev.CANSparkMax(34, rev.MotorType.kBrushless)
+        self.shooterBottomWheelMotor = rev.CANSparkMax(35, rev.MotorType.kBrushless)
+        self.shooterIndexerMotor = rev.CANSparkMax(24, rev.MotorType.kBrushed)
+        self.shooterIntakeMotor = rev.CANSparkMax(20, rev.MotorType.kBrushed)
+        self.shooterIntakeElevationMotor = rev.CANSparkMax(26, rev.MotorType.kBrushed)
         
         self.shooterTopWheelEncoder = self.shooterTopWheelMotor.getEncoder()
         self.shooterTopWheelEncoder.setPosition(0)
@@ -138,8 +138,9 @@ class io:
         self.photoSensorBack = wpilib.DigitalInput(1)
 
         #Climbing System
-        self.climberWinchAMotor = rev.CANSparkMax(16, rev.MotorType.kBrushless)
-        self.climberWinchBMotor = rev.CANSparkMax(17, rev.MotorType.kBrushless)
+        self.climberWinchAMotor = rev.CANSparkMax(21, rev.MotorType.kBrushless)
+        self.climberWinchBMotor = rev.CANSparkMax(22, rev.MotorType.kBrushless)
+        self.climberRaiseMotor = rev.CanSparkMax(29, rev.MotorType.kBrushed)
 
 
     def robotPeriodic(self, interfaces):
@@ -230,7 +231,8 @@ class io:
         #need intake angle command set here - need the PID controller for it, too
 
         self.climberWinchAMotor.set(interfaces.dClimbWinchPower)  
-        self.climberWinchBMotor.set(interfaces.dClimbWinchPower)  
+        self.climberWinchBMotor.set(interfaces.dClimbWinchPower) 
+        self.climberRaiseMotor.set(interfaces.dClimbRaisePower) 
 
         #swerve motors
         self.swerveLFDMotor.set(interfaces.swerveLFDDesSpd)
@@ -242,5 +244,7 @@ class io:
         self.swerveLFTPID.setReference(interfaces.swerveRFTDesAng, rev.ControlType.kVelocity)
         self.swerveLFTPID.setReference(interfaces.swerveLBTDesAng, rev.ControlType.kVelocity)
         self.swerveLFTPID.setReference(interfaces.swerveRBTDesAng, rev.ControlType.kVelocity) 
+
+
    
         #self.shooterIntakeElevationMotor

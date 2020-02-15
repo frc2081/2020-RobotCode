@@ -16,6 +16,7 @@ class interfaces:
     dBallIntake = False
     #self.dBallOther = False
     dClimbWinchPower = 0
+    dClimbRaisePower = 0
 
     #mechanism controller
     mSpinnyRaise = False

@@ -34,6 +34,13 @@ class controllerManager:
         #Hold start button to enable the winch, driver triggers to raise or lower it
         if self.driveController.getStartButton():
             interfaces.dClimbWinchPower = -self.driveController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) + self.driveController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand)
+            if(self.driveController.getBumper(wpilib.XboxController.Hand.kRightHand)):
+                interfaces.dClimbRaisePower = .5
+            elif(self.driveController.getBumper(wpilib.XboxController.Hand.kRightHand)):
+                interfaces.dClimbRaisePower = -.5
+            else:
+                interfaces.dClimbRaisePower = 0
+            interfaces.dClimbRaisePower = 
         else:
             interfaces.dClimbWinchPower = 0
 
