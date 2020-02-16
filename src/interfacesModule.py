@@ -43,6 +43,15 @@ class interfaces:
     swerveLBTDesAng = 0
     swerveRBTDesAng = 0
 
+    swerveLFDActSpd = 0
+    swerveRFDActSpd = 0
+    swerveLBDActSpd = 0
+    swerveRBDActSpd = 0
+    swerveLFTActPos = 0
+    swerveRFTActPos = 0
+    swerveLBTActPos = 0
+    swerveRBTActPos = 0
+
     #shooter
     #shooter speed is in rpm
     shooterTopSpeed = 0

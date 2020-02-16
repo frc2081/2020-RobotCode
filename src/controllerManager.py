@@ -17,11 +17,13 @@ class controllerManager:
         interfaces.dBallIntake = self.driveController.getAButton()
 
         #Add deadband
-        deadBand = 0.05
+        deadBand = 0.08
         if(abs(interfaces.dMoveX) < deadBand):
             interfaces.dMoveX = 0
         if(abs(interfaces.dMoveY) < deadBand):
             interfaces.dMoveY = 0
+        if(abs(interfaces.dTurn) < deadBand):
+            interfaces.dTurn = 0
 
         #Hold start button to enable the winch, driver triggers to raise or lower it
         if self.driveController.getStartButton():
@@ -37,10 +39,6 @@ class controllerManager:
             interfaces.dClimbRaisePower = 0
 
         #mechanism controller
-        interfaces.mSpinnyRaise = self.mechanismController.getBumper(wpilib.XboxController.Hand.kLeftHand)
-        interfaces.mSpinnyPhase1 = self.mechanismController.getBackButton()
-        interfaces.mSpinnyPhase2 = self.mechanismController.getStartButton()
-
         interfaces.mShootAgainstWall = self.mechanismController.getAButton()
 
         if self.mechanismController.getBButton() and not (self.mechanismController.getBumper(wpilib.XboxController.Hand.kRightHand)):
@@ -63,20 +61,17 @@ class controllerManager:
         else:
             interfaces.mShootTrenchAuto = False
 
-        interfaces.mReverseIndexer = self.mechanismController.getXButton()
-
         #indexer and shooter manual control
         interfaces.indexerManMode = self.mechanismController.getBackButton()
         if(interfaces.indexerManMode):
-            interfaces.indexerManPower = -self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) + self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand)
-            
+            interfaces.indexerManPower = self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) - self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand)
             if(self.mechanismController.getAButtonPressed()):
-                interfaces.shooterManTopDesSpd = 4000
-                interfaces.shooterManBotDesSpd = 1500
+                interfaces.shooterManTopDesSpd = -1500
+                interfaces.shooterManBotDesSpd = 700
  
             elif(self.mechanismController.getBButtonPressed()):
-                interfaces.shooterManTopDesSpd = 4500
-                interfaces.shooterManBotDesSpd = 2500
+                interfaces.shooterManTopDesSpd = -1500
+                interfaces.shooterManBotDesSpd = 700
         else:
             interfaces.shooterManTopDesSpd = 0
             interfaces.shooterManBotDesSpd = 0          

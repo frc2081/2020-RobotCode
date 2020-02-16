@@ -5,6 +5,9 @@ import ctre
 from networktables import NetworkTables
 
 class io:
+
+    swerveRBOldTarget = 0
+
     def __init__(self, interfaces):
         self.sd = NetworkTables.getTable("SmartDashboard")
 
@@ -13,8 +16,8 @@ class io:
         self.swerveRFDMotor = ctre.WPI_TalonSRX(3)
         self.swerveLBDMotor = ctre.WPI_TalonSRX(4)
         self.swerveRBDMotor = ctre.WPI_TalonSRX(1)
-        self.swerveLFTMotor = rev.CANSparkMax(30, rev.MotorType.kBrushless)
-        self.swerveRFTMotor = rev.CANSparkMax(33, rev.MotorType.kBrushless)
+        self.swerveLFTMotor = rev.CANSparkMax(33, rev.MotorType.kBrushless)
+        self.swerveRFTMotor = rev.CANSparkMax(30, rev.MotorType.kBrushless)
         self.swerveLBTMotor = rev.CANSparkMax(31, rev.MotorType.kBrushless)
         self.swerveRBTMotor = rev.CANSparkMax(32, rev.MotorType.kBrushless)
 
@@ -28,7 +31,7 @@ class io:
         self.shooterBottomWheelMotor = rev.CANSparkMax(35, rev.MotorType.kBrushless)
         self.shooterIndexerMotor = rev.CANSparkMax(24, rev.MotorType.kBrushed)
         self.shooterIntakeMotor = rev.CANSparkMax(20, rev.MotorType.kBrushed)
-        self.shooterIntakeArmMotor = rev.CANSparkMax(26, rev.MotorType.kBrushed)
+        self.shooterIntakeArmMotor = rev.CANSparkMax(26, rev.MotorType.kBrushless)
 
         #Encoders
         self.swerveLFTEncoder = self.swerveLFTMotor.getEncoder()
@@ -40,23 +43,26 @@ class io:
         #self.indexerEncoder = self.shooterIndexerMotor.getAlternateEncoder(rev.CANEncoder.AlternateEncoderType.kQuadrature, 8192)
         self.intakePhotoSensor = wpilib.DigitalInput(4)
 
+        self.intakeArmConversionFactor = 3.599
+        self.intakeArmEncoder.setPositionConversionFactor(self.intakeArmConversionFactor)
+
         #PID Setup
-        self.swerveDriveP = 0.0005
+        self.swerveDriveP = 0
         self.swerveDriveI = 0
         self.swerveDriveOutputMin = -1
         self.swerveDriveOutputMax = 1
         self.swerveDriveConversionFactor = 1
 
-        self.swerveTurnP = 0
+        self.swerveTurnP = 0.005
         self.swerveTurnI = 0
-        self.swerveTurnOutputMin = 0
-        self.swerveTurnOutputMax = 0
-        self.swerveTurnConversionFactor = 1
+        self.swerveTurnOutputMin = -1
+        self.swerveTurnOutputMax = 1
+        self.swerveTurnConversionFactor = 9.6
 
-        self.swerveLFTEncoder.setPositionConversionFactor(self.swerveDriveConversionFactor)
-        self.swerveRFTEncoder.setPositionConversionFactor(self.swerveDriveConversionFactor)
-        self.swerveLBTEncoder.setPositionConversionFactor(self.swerveDriveConversionFactor)
-        self.swerveRBTEncoder.setPositionConversionFactor(self.swerveDriveConversionFactor)     
+        self.swerveLFTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)
+        self.swerveRFTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)
+        self.swerveLBTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)
+        self.swerveRBTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)     
 
         self.swerveLFTPID = self.swerveLFTMotor.getPIDController()
         self.swerveLFTPID.setP(self.swerveTurnP)
@@ -84,24 +90,27 @@ class io:
         self.shooterBottomWheelEncoder = self.shooterBottomWheelMotor.getEncoder()
         self.shooterBottomWheelEncoder.setPosition(0)
 
-        self.shooterP = 0.005
+        self.shooterP = 0.00005
         self.shooterI = 0
-        self.shooterF = 0
-        self.shooterOutputMin = 0
-        self.shooterOutputMax = 0
+        self.shooterF = 0.0005
+        self.shooterOutputMin = -1
+        self.shooterOutputMax = 1
         self.shooterConversionFactor = 1
+        self.shooterRampRate = .25
 
         self.shooterTopWheelPID = self.shooterTopWheelMotor.getPIDController()
         self.shooterTopWheelPID.setP(self.shooterP)
         self.shooterTopWheelPID.setI(self.shooterI)
-        self.shooterTopWheelPID.setF(self.shooterF)
+        self.shooterTopWheelPID.setFF(self.shooterF)
         self.shooterTopWheelPID.setOutputRange(self.shooterOutputMin, self.shooterOutputMax)
+        self.shooterTopWheelMotor.setClosedLoopRampRate(self.shooterRampRate)
 
         self.shooterBottomWheelPID = self.shooterBottomWheelMotor.getPIDController()
         self.shooterBottomWheelPID.setP(self.shooterP)
         self.shooterBottomWheelPID.setI(self.shooterI)
-        self.shooterBottomWheelPID.setF(self.shooterF)
+        self.shooterBottomWheelPID.setFF(self.shooterF)
         self.shooterBottomWheelPID.setOutputRange(self.shooterOutputMin, self.shooterOutputMax)
+        self.shooterBottomWheelMotor.setClosedLoopRampRate(self.shooterRampRate)
 
         self.shooterIndexerP = 0.0005
         self.shooterIndexerI = 0
@@ -110,11 +119,11 @@ class io:
         self.shooterIndexerConversionFactor = 360
 
         self.intakeArmPID = self.shooterIntakeArmMotor.getPIDController()
-        self.intakeArmP = 0.005
-        self.intakeArmI = 0
+        self.intakeArmP = 0.005 #0.006
+        self.intakeArmI = 0.0000 #0.0001
         self.intakeArmOutputMin = -1
         self.intakeArmOutputMax = 1
-        self.intakeArmConversionFactor = 0.086 #42cpr * 100:1 gear ratio / 360 degress/rev = 11.66 counts per degree = .086 degrees per count
+
     
         self.intakeArmPID.setP(self.intakeArmP)
         self.intakeArmPID.setI(self.intakeArmI)
@@ -141,27 +150,46 @@ class io:
         interfaces.intakeActualPos = self.intakeArmEncoder.getPosition()
        # interfaces.indexerEncoder = self.indexerEncoder.getPosition()
         
+        interfaces.swerveLFDActSpd = 0
+        interfaces.swerveRFDActSpd = 0
+        interfaces.swerveLBDActSpd = 0
+        interfaces.swerveRBDActSpd = 0
+        interfaces.swerveLFDActPos = self.swerveLFTEncoder.getPosition()
+        interfaces.swerveRFDActPos = self.swerveRFTEncoder.getPosition()
+        interfaces.swerveLBDActPos = self.swerveLBTEncoder.getPosition()
+        interfaces.swerveRBDActPos = self.swerveRBTEncoder.getPosition()             
+        
         interfaces.intakeBallDetected = self.intakePhotoSensor.get()
 
         self.sd.putNumber("indexer desired", interfaces.indexerAngle)
         self.sd.putNumber("indexer actual", interfaces.indexerEncoder)
-        self.sd.putNumber("Shooter Top desired", interfaces.shooterTopSpeed)
+        self.sd.putNumber("Shooter Top desired", interfaces.shooterManTopDesSpd)
         self.sd.putNumber("Shooter Top actual", interfaces.shooterTopSpeedEncoder)
-        self.sd.putNumber("Shooter Bottom desired", interfaces.shooterBottomSpeed)
+        self.sd.putNumber("Shooter Bottom desired", interfaces.shooterManBotDesSpd)
         self.sd.putNumber("Shooter Bottom actual", interfaces.shooterBottomSpeedEncoder)
 
         self.sd.putNumber("Intake Arm Angle", interfaces.intakeActualPos)
-        self.sd.putNumber("Ball Detected", interfaces.intakeBallDetected)
+        self.sd.putNumber("Intake Arm Desired Angle", interfaces.intakeDesiredPos)
+        self.sd.putBoolean("Ball Detected", interfaces.intakeBallDetected)
 
-        #self.sd.putNumber("LFD Encoder", self.swerveLFDEncoder.getVelocity())
-        #self.sd.putNumber("RFD Encoder", self.swerveRFDEncoder.getVelocity())
-        #self.sd.putNumber("LBD Encoder", self.swerveLBDEncoder.getVelocity())
-        #self.sd.putNumber("RBD Encoder", self.swerveRBDEncoder.getVelocity())
-        self.sd.putNumber("RFT Encoder", self.swerveRFTEncoder.getPosition())
-        self.sd.putNumber("LBT Encoder", self.swerveLBTEncoder.getPosition())
-        self.sd.putNumber("RBT Encoder", self.swerveRBTEncoder.getPosition())
-        self.sd.putNumber("LFT Encoder", self.swerveLFTEncoder.getPosition())
+        #self.sd.putNumber("LFD Encoder", interfaces.swerveLFDActSpd)
+        #self.sd.putNumber("RFD Encoder", interfaces.swerveRFDActSpd)
+        #self.sd.putNumber("LBD Encoder", interfaces.swerveLBDActSpd)
+        #self.sd.putNumber("RBD Encoder", interfaces.swerveRBDActSpd)
+        self.sd.putNumber("RFT Encoder", interfaces.swerveLFDActPos)
+        self.sd.putNumber("LBT Encoder", interfaces.swerveRFDActPos)
+        self.sd.putNumber("RBT Encoder", interfaces.swerveLBDActPos)
+        self.sd.putNumber("LFT Encoder", interfaces.swerveRBDActPos)
 
+    def teleopInit(self, interfaces):
+        self.sd.putNumber("Shooter P", self.shooterP)
+        self.sd.putNumber("Shooter I", self.shooterI)
+        self.sd.putNumber("Shooter F", self.shooterF)
+
+        self.sd.putNumber("indexer P", self.shooterIndexerP)
+        self.sd.putNumber("indexer I", self.shooterIndexerI)
+
+    def teleopPeriodic(self, interfaces):
         shooterNewP = self.sd.getNumber("Shooter P", 0)
         shooterNewI = self.sd.getNumber("Shooter I", 0)
         shooterNewF = self.sd.getNumber("Shooter F", 0)
@@ -178,44 +206,62 @@ class io:
 
         if (shooterNewF) != self.shooterF:
             self.shooterF = shooterNewF
-            self.shooterTopWheelPID.setF(self.shooterF)       
-            self.shooterBottomWheelPID.setF(self.shooterF)    
+            self.shooterTopWheelPID.setFF(self.shooterF)       
+            self.shooterBottomWheelPID.setFF(self.shooterF)         
 
-    def teleopInit(self, interfaces):
-        self.sd.putNumber("Shooter P", self.shooterP)
-        self.sd.putNumber("Shooter I", self.shooterI)
-        self.sd.putNumber("Shooter F", self.shooterF)
-
-        self.sd.putNumber("indexer P", self.shooterIndexerP)
-        self.sd.putNumber("indexer I", self.shooterIndexerI)
-
-    def teleopPeriodic(self, interfaces):
-      
         if(interfaces.indexerManMode == True):
             self.shooterIndexerMotor.set(interfaces.indexerManPower)
             self.shooterTopWheelPID.setReference(interfaces.shooterManTopDesSpd , rev.ControlType.kVelocity)
             self.shooterBottomWheelPID.setReference(interfaces.shooterManBotDesSpd, rev.ControlType.kVelocity)
         else:
             #**********NEED INDEXER DESIRED ANGLE SET HERE**********
+            self.shooterIndexerMotor.set(0)
             self.shooterTopWheelPID.setReference(interfaces.shooterTopSpeed, rev.ControlType.kVelocity)
             self.shooterBottomWheelPID.setReference(interfaces.shooterBottomSpeed, rev.ControlType.kVelocity)            
         
         self.shooterIntakeMotor.set(interfaces.intakeWheelSpeed)
-        #need intake angle command set here - need the PID controller for it, too
+        self.intakeArmPID.setReference(interfaces.intakeDesiredPos, rev.ControlType.kPosition)
 
         self.climberWinchAMotor.set(interfaces.dClimbWinchPower)  
         self.climberWinchBMotor.set(interfaces.dClimbWinchPower) 
         self.climberRaiseMotor.set(interfaces.dClimbRaisePower) 
 
         #swerve motors
+        #Rear motors are reversed to account for swerve module installation orientation
         self.swerveLFDMotor.set(interfaces.swerveLFDDesSpd)
         self.swerveRFDMotor.set(interfaces.swerveRFDDesSpd)
-        self.swerveLBDMotor.set(interfaces.swerveLBDDesSpd)
-        self.swerveRBDMotor.set(interfaces.swerveRBDDesSpd)
+        self.swerveLBDMotor.set(-interfaces.swerveLBDDesSpd)
+        self.swerveRBDMotor.set(-interfaces.swerveRBDDesSpd)
 
-        self.swerveLFTPID.setReference(interfaces.swerveLFTDesAng, rev.ControlType.kVelocity)
-        self.swerveLFTPID.setReference(interfaces.swerveRFTDesAng, rev.ControlType.kVelocity)
-        self.swerveLFTPID.setReference(interfaces.swerveLBTDesAng, rev.ControlType.kVelocity)
-        self.swerveLFTPID.setReference(interfaces.swerveRBTDesAng, rev.ControlType.kVelocity) 
+        LFTDesPosCmd = swerveConvertToEncPosition(interfaces.swerveLFTActPos, interfaces.swerveLFTDesAng)
+        RFTDesPosCmd = swerveConvertToEncPosition(interfaces.swerveRFTActPos, interfaces.swerveRFTDesAng)
+        LBTDesPosCmd = swerveConvertToEncPosition(interfaces.swerveLBTActPos, interfaces.swerveLBTDesAng)
+        RBTDesPosCmd = swerveConvertToEncPosition(interfaces.swerveRBTActPos, interfaces.swerveRBTDesAng)
 
-        self.intakeArmPID.setReference(interfaces.intakeDesiredPos, rev.ControlType.kPosition)
+        self.swerveLFTPID.setReference(LFTDesPosCmd, rev.ControlType.kPosition)
+        self.swerveRFTPID.setReference(RFTDesPosCmd, rev.ControlType.kPosition)
+        self.swerveLBTPID.setReference(LBTDesPosCmd, rev.ControlType.kPosition)
+        self.swerveRBTPID.setReference(RBTDesPosCmd, rev.ControlType.kPosition) 
+
+#Translate desired swerve position from the swerve library into a desired positon
+#for a swerve module with a relative encoder
+def swerveConvertToEncPosition(self, encoderActPos, swerveDesPos):
+
+    #Convert from encoder position space (-infinite to + infinite) to swerve library position space (0 to 360)
+    swerveActPos = encoderActPos % 360
+    degreesToTurn = 0
+    
+    #Determine if the best path to the new position is across a zero-crossing
+    #Zero crossing from large angle to small angle (ex. 355 to 5)
+    if((swerveActPos > 180) and swerveDesPos < swerveActPos - 180):
+        degreesToTurn = 360 - swerveActPos - swerveDesPos
+
+    #Zero crossing from small angle to large angle (ex. 5 to 355)
+    elif((swerveActPos < 180) and swerveDesPos > swerveActPos + 180):
+        degreesToTurn = -360 - swerveActPos + swerveDesPos
+
+    #no zero crossing
+    else:
+        degreesToTurn = swerveDesPos - swerveActPos
+
+    return encoderActPos + degreesToTurn

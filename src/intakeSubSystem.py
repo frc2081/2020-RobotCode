@@ -14,17 +14,18 @@ class intakeSystem():
 
     intakeState = intakeStates.Idle #Current state of the intake state machine
 
-    intakeWheelSpdHold = -.1 #intake speed to run when the intake is "idle" set to non-zero to hold balls in position at top of intake
-    intakeWheelSpdLoading = -.25 # intake speed to run when moving a ball from the ground into the robot
+    intakeWheelSpdHold = 0 #intake speed to run when the intake is "idle" set to non-zero to hold balls in position at top of intake
+    intakeWheelSpdLoading = -.5 # intake speed to run when moving a ball from the ground into the robot
     intakeWheelSpdRunning = -1 # intake speed to run when intake is lowered and pulling balls in
 
-    intakePosLowered = 90 #intake position in degrees of "lowered" position for intaking baslls
-    intakePosRaised = 0 #intake position in degrees when it is "raised." Same as intake starting position
-    intakeRaisedThreshold = 5 #Threshold to consider the intake to be in the "raised" position
+    intakePosLowered = 80 #intake position in degrees of "lowered" position for intaking baslls
+    intakePosRaised = -15 #-15 intake position in degrees when it is "raised." Same as intake starting position
+    intakeRaisedThreshold = intakePosRaised + 5 #Threshold to consider the intake to be in the "raised" position
+    intakeLoweredThreshold = intakePosLowered - 10 #Threshold to consider the intake to be in the "raised" position
     intakeAllowedPosError = 1 #Allowed intake positon error in degrees
 
-    intakeLoweringSpd = 180 #degrees per second to move the intake when lowering it
-    intakeRaisingSpd = 360 #degrees per secont to move the intake when raising it
+    intakeLoweringSpd = 60 #45degrees per second to move the intake when lowering it
+    intakeRaisingSpd = 20 #degrees per secont to move the intake when raising it
     
     mIntakeActPos = 0 #internal actual position of the intake arm
     mIntakeDesPos = 0 #internal desired position of the intake arm
@@ -52,19 +53,19 @@ class intakeSystem():
             if(interfaces.dBallIntake == True):
                 self.intakeState = self.intakeStates.Running
 
-        elif(intakeState == self.intakeStates.Running):
+        elif(self.intakeState == self.intakeStates.Running):
             self.mIntakeSpeed = self.intakeWheelSpdRunning
             self.mIntakeDesPos = self.intakePosLowered          
 
             #transition conditions
-            if(interfaces.intakeBallDetected == True):
+            if((interfaces.intakeBallDetected == True) and interfaces.intakeActualPos > self.intakeLoweredThreshold):
                 self.intakeState = self.intakeStates.Loading
             elif(interfaces.dBallIntake == False):
                 self.intakeState = self.intakeStates.Idle
 
-        elif(intakeState == self.intakeStates.Loading):
+        elif(self.intakeState == self.intakeStates.Loading):
             self.mIntakeSpeed = self.intakeWheelSpdLoading
-            self.mIntakeDesPos = self.intakePosLowered
+            self.mIntakeDesPos = self.intakePosRaised
 
             #transition conditions
             if(interfaces.intakeActualPos < self.intakeRaisedThreshold):
@@ -75,11 +76,13 @@ class intakeSystem():
         #Step 2: Otherwise, increment the ramped desired position toward the final desired position        
         if((self.mIntakeDesPosRamped < self.mIntakeDesPos + self.intakeAllowedPosError) and (self.mIntakeDesPosRamped > self.mIntakeDesPos - self.intakeAllowedPosError)):
             self.mIntakeDesPosRamped = self.mIntakeDesPos
-        elif(self.mIntakeDesPos > self.intakeDesPosRamped):
+        elif(self.mIntakeDesPos > self.mIntakeDesPosRamped):
             self.mIntakeDesPosRamped += (self.intakeLoweringSpd * interfaces.robotUpdatePeriod)
-        elif(self.mIntakeDesPos < self.intakeDesPosRamped):
+        elif(self.mIntakeDesPos < self.mIntakeDesPosRamped):
             self.mIntakeDesPosRamped -= (self.intakeRaisingSpd * interfaces.robotUpdatePeriod)
 
         #Set final desired values to send to hardware
         interfaces.intakeDesiredPos = self.mIntakeDesPosRamped
         interfaces.intakeWheelSpeed = self.mIntakeSpeed
+
+        print(self.intakeState)

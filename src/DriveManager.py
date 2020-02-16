@@ -48,8 +48,8 @@ class DriveManager:
 
     def DriveManagerPeriodic(self, interfaces):
         self.CalculateVectors(interfaces)
-        self.ApplyIntellegintSwerve(interfaces)
-        self.UpdateDashboard()
+        #self.ApplyIntellegintSwerve(interfaces)
+        self.UpdateDashboard(interfaces)
 
     def DriveManagerAutoPeriodic(self, interfaces):
         self.CalculateVectors(interfaces)
@@ -65,10 +65,10 @@ class DriveManager:
         wpilib.SmartDashboard.putNumber("Swerve Mag", self._drvMag)
         wpilib.SmartDashboard.putNumber("Swerve Rot", self._drvRot)
 
-        _currangrf = self._swervelib.whl.speed1
-        _curranglf = self._swervelib.whl.speed2
-        _curranglb = self._swervelib.whl.speed3
-        _currangrb = self._swervelib.whl.speed4
+        _currangrf = self._swervelib.whl.angle1
+        _curranglf = self._swervelib.whl.angle2
+        _curranglb = self._swervelib.whl.angle3
+        _currangrb = self._swervelib.whl.angle4
 
         #limit rate of change of driver commanded direction and speed to prevent tipping the robot over
         if(self.accelerationControlEnabled == True):
@@ -79,7 +79,7 @@ class DriveManager:
             self.drvMagLim = self._drvMag
 
         #If driver is not commanding any movement, keep the wheels in the current position
-        if ((self.drvMagLim != 0) or (self.drvAngLim != 0)):
+        if ((self.drvMagLim != 0) or (self._drvRot != 0)):
             self._swervelib.calcWheelVect(self.drvMagLim, self.drvAngLim, self._drvRot)
         else:
             self._swervelib.whl.speed1 = 0
@@ -92,9 +92,21 @@ class DriveManager:
             self._swervelib.whl.angle3 = _curranglb
             self._swervelib.whl.angle4 = _currangrb
 
+        interfaces.swerveLFDDesSpd = self._swervelib.whl.speed2
+        interfaces.swerveRFDDesSpd = self._swervelib.whl.speed1
+        interfaces.swerveLBDDesSpd = self._swervelib.whl.speed3
+        interfaces.swerveRBDDesSpd = self._swervelib.whl.speed4
+
+        interfaces.swerveLFTDesAng = self._swervelib.whl.angle2
+        interfaces.swerveRFTDesAng = self._swervelib.whl.angle1
+        interfaces.swerveLBTDesAng = self._swervelib.whl.angle3
+        interfaces.swerveRBTDesAng = self._swervelib.whl.angle4
+
     #This function modifies the output of the swerve library to control the turn motors more intelligently
     #It works to prevent the wheels from turning completely around when they would only need to move a bit and then reverse to reach a target vector
+    #If the desired angle is more than 90 and less than 270 degrees away from the current angle, Add 180 to the target angle and reverse the wheel
     def ApplyIntellegintSwerve(self, interfaces):
+
         if (abs(self._swervelib.whl.angle1 - self._currangrf) > 90 and
            (self._swervelib.whl.angle1 - self._currangrf < 270)):
             self._swervelib.whl.angle1 = (self._swervelib.whl.angle1 + 180) % 360
@@ -117,17 +129,17 @@ class DriveManager:
         interfaces.swerveLBDDesSpd = self._swervelib.whl.speed3
         interfaces.swerveRBDDesSpd = self._swervelib.whl.speed4
 
-        interfaces.swerveLFDDesAng = self._swervelib.whl.angle2
-        interfaces.swerveRFDDesAng = self._swervelib.whl.angle1
-        interfaces.swerveLBDDesAng = self._swervelib.whl.angle3
-        interfaces.swerveRBDDesAng = self._swervelib.whl.angle4
+        interfaces.swerveLFTDesAng = self._swervelib.whl.angle2
+        interfaces.swerveRFTDesAng = self._swervelib.whl.angle1
+        interfaces.swerveLBTDesAng = self._swervelib.whl.angle3
+        interfaces.swerveRBTDesAng = self._swervelib.whl.angle4
 
-    def UpdateDashboard(self):
+    def UpdateDashboard(self, interfaces):
         #Swerve Desired Wheel Vectors
-        wpilib.SmartDashboard.putNumber("Swerve LF Angle Des", self._swervelib.whl.angle2)	
-        wpilib.SmartDashboard.putNumber("Swerve RF Angle Des", self._swervelib.whl.angle1)	
-        wpilib.SmartDashboard.putNumber("Swerve LB Angle Des", self._swervelib.whl.angle3)	
-        wpilib.SmartDashboard.putNumber("Swerve RB Angle Des", self._swervelib.whl.angle4)	
+        wpilib.SmartDashboard.putNumber("Swerve LF Angle Des", interfaces.swerveLFTDesAng)	
+        wpilib.SmartDashboard.putNumber("Swerve RF Angle Des", interfaces.swerveRFTDesAng)	
+        wpilib.SmartDashboard.putNumber("Swerve LB Angle Des", interfaces.swerveLBTDesAng)	
+        wpilib.SmartDashboard.putNumber("Swerve RB Angle Des", interfaces.swerveRBTDesAng)	
 
         wpilib.SmartDashboard.putNumber("Swerve LF Speed Des", self._swervelib.whl.speed2)	
         wpilib.SmartDashboard.putNumber("Swerve RF Speed Des", self._swervelib.whl.speed1)	
