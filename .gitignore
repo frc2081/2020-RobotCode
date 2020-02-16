@@ -7,3 +7,10 @@ src/__pycache__/ioModule.cpython-38.pyc
 src/__pycache__/robot.cpython-38.pyc
 src/__pycache__/swervelib.cpython-38.pyc
 src/imgui.ini
+src/__pycache__/controllerManager.cpython-38.pyc
+src/__pycache__/DriveManager.cpython-38.pyc
+src/__pycache__/indexerSubsystem.cpython-38.pyc
+src/__pycache__/interfacesModule.cpython-38.pyc
+src/__pycache__/ioModule.cpython-38.pyc
+src/__pycache__/robot.cpython-38.pyc
+src/__pycache__/swervelib.cpython-38.pyc
