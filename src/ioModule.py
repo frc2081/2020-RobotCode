@@ -119,7 +119,7 @@ class io:
         self.shooterIndexerConversionFactor = 360
 
         self.intakeArmPID = self.shooterIntakeArmMotor.getPIDController()
-        self.intakeArmP = 0.005 #0.006
+        self.intakeArmP = 0.006 #0.006
         self.intakeArmI = 0.0000 #0.0001
         self.intakeArmOutputMin = -1
         self.intakeArmOutputMax = 1
@@ -233,15 +233,15 @@ class io:
         self.swerveLBDMotor.set(-interfaces.swerveLBDDesSpd)
         self.swerveRBDMotor.set(-interfaces.swerveRBDDesSpd)
 
-        LFTDesPosCmd = swerveConvertToEncPosition(interfaces.swerveLFTActPos, interfaces.swerveLFTDesAng)
-        RFTDesPosCmd = swerveConvertToEncPosition(interfaces.swerveRFTActPos, interfaces.swerveRFTDesAng)
-        LBTDesPosCmd = swerveConvertToEncPosition(interfaces.swerveLBTActPos, interfaces.swerveLBTDesAng)
-        RBTDesPosCmd = swerveConvertToEncPosition(interfaces.swerveRBTActPos, interfaces.swerveRBTDesAng)
+        LFTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveLFTActPos, interfaces.swerveLFTDesAng)
+        RFTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveRFTActPos, interfaces.swerveRFTDesAng)
+        LBTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveLBTActPos, interfaces.swerveLBTDesAng)
+        RBTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveRBTActPos, interfaces.swerveRBTDesAng)
 
-        self.swerveLFTPID.setReference(LFTDesPosCmd, rev.ControlType.kPosition)
-        self.swerveRFTPID.setReference(RFTDesPosCmd, rev.ControlType.kPosition)
-        self.swerveLBTPID.setReference(LBTDesPosCmd, rev.ControlType.kPosition)
-        self.swerveRBTPID.setReference(RBTDesPosCmd, rev.ControlType.kPosition) 
+        self.swerveLFTPID.setReference(interfaces.swerveLFTDesAng, rev.ControlType.kPosition)
+        self.swerveRFTPID.setReference(interfaces.swerveRFTDesAng, rev.ControlType.kPosition)
+        self.swerveLBTPID.setReference(interfaces.swerveLBTDesAng, rev.ControlType.kPosition)
+        self.swerveRBTPID.setReference(interfaces.swerveRBTDesAng, rev.ControlType.kPosition) 
 
 #Translate desired swerve position from the swerve library into a desired positon
 #for a swerve module with a relative encoder

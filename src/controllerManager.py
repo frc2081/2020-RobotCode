@@ -70,11 +70,12 @@ class controllerManager:
                 interfaces.shooterManBotDesSpd = 700
  
             elif(self.mechanismController.getBButtonPressed()):
-                interfaces.shooterManTopDesSpd = -1500
-                interfaces.shooterManBotDesSpd = 700
+                interfaces.shooterManTopDesSpd = -1000
+                interfaces.shooterManBotDesSpd = 200
         else:
             interfaces.shooterManTopDesSpd = 0
-            interfaces.shooterManBotDesSpd = 0          
+            interfaces.shooterManBotDesSpd = 0
+            interfaces.indexerManPower = 0          
 
     def controllerManagerSmartDashboard(self, interfaces):
         wpilib.SmartDashboard.putNumber("swerve turn command", interfaces.dTurn)
