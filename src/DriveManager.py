@@ -9,7 +9,7 @@ class DriveManager:
     driveBaseWidth = 23
     driveBaseLength = 32
 
-    accelerationControlEnabled = True
+    accelerationControlEnabled = False
 
     #those numbers are the width and lenth of wheel center to wheel center
     _swervelib = swervelib.SwerveLib(driveBaseWidth, driveBaseLength)

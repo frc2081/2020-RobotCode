@@ -154,10 +154,10 @@ class io:
         interfaces.swerveRFDActSpd = 0
         interfaces.swerveLBDActSpd = 0
         interfaces.swerveRBDActSpd = 0
-        interfaces.swerveLFDActPos = self.swerveLFTEncoder.getPosition()
-        interfaces.swerveRFDActPos = self.swerveRFTEncoder.getPosition()
-        interfaces.swerveLBDActPos = self.swerveLBTEncoder.getPosition()
-        interfaces.swerveRBDActPos = self.swerveRBTEncoder.getPosition()             
+        interfaces.swerveLFTActPos = self.swerveLFTEncoder.getPosition()
+        interfaces.swerveRFTActPos = self.swerveRFTEncoder.getPosition()
+        interfaces.swerveLBTActPos = self.swerveLBTEncoder.getPosition()
+        interfaces.swerveRBTActPos = self.swerveRBTEncoder.getPosition()             
         
         interfaces.intakeBallDetected = self.intakePhotoSensor.get()
 
@@ -176,10 +176,10 @@ class io:
         #self.sd.putNumber("RFD Encoder", interfaces.swerveRFDActSpd)
         #self.sd.putNumber("LBD Encoder", interfaces.swerveLBDActSpd)
         #self.sd.putNumber("RBD Encoder", interfaces.swerveRBDActSpd)
-        self.sd.putNumber("RFT Encoder", interfaces.swerveLFDActPos)
-        self.sd.putNumber("LBT Encoder", interfaces.swerveRFDActPos)
-        self.sd.putNumber("RBT Encoder", interfaces.swerveLBDActPos)
-        self.sd.putNumber("LFT Encoder", interfaces.swerveRBDActPos)
+        self.sd.putNumber("RFT Encoder", interfaces.swerveRFTActPos)
+        self.sd.putNumber("LBT Encoder", interfaces.swerveLBTActPos)
+        self.sd.putNumber("RBT Encoder", interfaces.swerveRBTActPos)
+        self.sd.putNumber("LFT Encoder", interfaces.swerveLFTActPos)
 
     def teleopInit(self, interfaces):
         self.sd.putNumber("Shooter P", self.shooterP)
@@ -188,6 +188,7 @@ class io:
 
         self.sd.putNumber("indexer P", self.shooterIndexerP)
         self.sd.putNumber("indexer I", self.shooterIndexerI)
+
 
     def teleopPeriodic(self, interfaces):
         shooterNewP = self.sd.getNumber("Shooter P", 0)
@@ -247,21 +248,32 @@ class io:
 #for a swerve module with a relative encoder
 def swerveConvertToEncPosition(self, encoderActPos, swerveDesPos):
 
+    self.sd.putNumber("EncoderActPos", encoderActPos)
+    self.sd.putNumber("SwerveDesPos", swerveDesPos)
+
     #Convert from encoder position space (-infinite to + infinite) to swerve library position space (0 to 360)
     swerveActPos = encoderActPos % 360
     degreesToTurn = 0
-    
+    direction = 0
+
     #Determine if the best path to the new position is across a zero-crossing
     #Zero crossing from large angle to small angle (ex. 355 to 5)
-    if((swerveActPos > 180) and swerveDesPos < swerveActPos - 180):
-        degreesToTurn = 360 - swerveActPos - swerveDesPos
-
+    if((swerveActPos > 180) and (swerveDesPos < swerveActPos - 180)):
+        degreesToTurn = 360 + swerveActPos - swerveDesPos
+        direction = 1
     #Zero crossing from small angle to large angle (ex. 5 to 355)
-    elif((swerveActPos < 180) and swerveDesPos > swerveActPos + 180):
+    elif((swerveActPos < 180) and (swerveDesPos > swerveActPos + 180)):
         degreesToTurn = -360 - swerveActPos + swerveDesPos
-
+        direction = 2
     #no zero crossing
     else:
         degreesToTurn = swerveDesPos - swerveActPos
+        direction = 3
 
-    return encoderActPos + degreesToTurn
+    compensatedCmd = encoderActPos + degreesToTurn
+
+    self.sd.putNumber("Direction", direction)
+    self.sd.putNumber("RBT Degrees to Turn", degreesToTurn)
+    self.sd.putNumber("RBT Compensated Command", compensatedCmd)
+
+    return compensatedCmd
