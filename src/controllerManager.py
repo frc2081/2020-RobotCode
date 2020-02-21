@@ -27,7 +27,7 @@ class controllerManager:
 
         #Hold start button to enable the winch, driver triggers to raise or lower it
         if self.driveController.getStartButton():
-            interfaces.dClimbWinchPower = -self.driveController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) + self.driveController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand)
+            interfaces.dClimbWinchPower = -self.driveController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand)
             if(self.driveController.getBumper(wpilib.XboxController.Hand.kRightHand)):
                 interfaces.dClimbRaisePower = .4
             elif(self.driveController.getBumper(wpilib.XboxController.Hand.kLeftHand)):
@@ -66,16 +66,21 @@ class controllerManager:
         if(interfaces.indexerManMode):
             interfaces.indexerManPower = self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) - self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand)
             if(self.mechanismController.getAButtonPressed()):
-                interfaces.shooterManTopDesSpd = -1500
-                interfaces.shooterManBotDesSpd = 700
+                interfaces.shooterManTopDesSpd = -4000
+                interfaces.shooterManBotDesSpd = 2200
  
             elif(self.mechanismController.getBButtonPressed()):
                 interfaces.shooterManTopDesSpd = -1000
-                interfaces.shooterManBotDesSpd = 200
+                interfaces.shooterManBotDesSpd = 3500
         else:
             interfaces.shooterManTopDesSpd = 0
             interfaces.shooterManBotDesSpd = 0
-            interfaces.indexerManPower = 0          
+            interfaces.indexerManPower = 0     
+        
+        interfaces.intakeManMode = self.mechanismController.getStartButton()
+        if(interfaces.intakeManMode):
+            interfaces.intakeArmManPwr = self.mechanismController.getX(wpilib.XboxController.Hand.kRightHand)
+            interfaces.intakeWhlManPwr = self.mechanismController.getX(wpilib.XboxController.Hand.kLeftHand)
 
     def controllerManagerSmartDashboard(self, interfaces):
         wpilib.SmartDashboard.putNumber("swerve turn command", interfaces.dTurn)

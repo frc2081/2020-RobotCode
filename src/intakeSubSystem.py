@@ -15,11 +15,11 @@ class intakeSystem():
     intakeState = intakeStates.Idle #Current state of the intake state machine
 
     intakeWheelSpdHold = 0 #intake speed to run when the intake is "idle" set to non-zero to hold balls in position at top of intake
-    intakeWheelSpdLoading = -.5 # intake speed to run when moving a ball from the ground into the robot
-    intakeWheelSpdRunning = -1 # intake speed to run when intake is lowered and pulling balls in
+    intakeWheelSpdLoading = -450#-.25 # intake speed to run when moving a ball from the ground into the robot
+    intakeWheelSpdRunning = -450 #-.25 # intake speed to run when intake is lowered and pulling balls in
 
-    intakePosLowered = 80 #intake position in degrees of "lowered" position for intaking baslls
-    intakePosRaised = -8#-15 intake position in degrees when it is "raised." Same as intake starting position
+    intakePosLowered = 75 #intake position in degrees of "lowered" position for intaking baslls
+    intakePosRaised = -12#-15 intake position in degrees when it is "raised." Same as intake starting position
     intakeRaisedThreshold = intakePosRaised + 5 #Threshold to consider the intake to be in the "raised" position
     intakeLoweredThreshold = intakePosLowered - 10 #Threshold to consider the intake to be in the "raised" position
     intakeAllowedPosError = 1 #Allowed intake positon error in degrees
@@ -84,5 +84,3 @@ class intakeSystem():
         #Set final desired values to send to hardware
         interfaces.intakeDesiredPos = self.mIntakeDesPosRamped
         interfaces.intakeWheelSpeed = self.mIntakeSpeed
-
-        print(self.intakeState)

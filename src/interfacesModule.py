@@ -75,9 +75,14 @@ class interfaces:
     #intake
     #Release solenoid?
     intakeWheelSpeed = 0
+    intakeWheelSpeedAct = 0
     intakeActualPos = 0
     intakeDesiredPos = 0
     intakeBallDetected = False
+
+    intakeManMode = False
+    intakeArmManPwr = 0
+    intakeWhlManPwr = 0
 
     def __init__(self):
         pass

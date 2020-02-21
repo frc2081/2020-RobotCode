@@ -3,10 +3,9 @@ import rev
 import ctre
 
 from networktables import NetworkTables
+from wpilib import controller
 
 class io:
-
-    swerveRBOldTarget = 0
 
     def __init__(self, interfaces):
         self.sd = NetworkTables.getTable("SmartDashboard")
@@ -40,11 +39,16 @@ class io:
         self.swerveRBTEncoder = self.swerveRBTMotor.getEncoder()
 
         self.intakeArmEncoder = self.shooterIntakeArmMotor.getEncoder()
-        #self.indexerEncoder = self.shooterIndexerMotor.getAlternateEncoder(rev.CANEncoder.AlternateEncoderType.kQuadrature, 8192)
+        self.intakeWhlEncoder = wpilib.Encoder(0,1)
+        self.indexerEncoder = wpilib.Encoder(8,9)
         self.intakePhotoSensor = wpilib.DigitalInput(4)
 
         self.intakeArmConversionFactor = 3.599
         self.intakeArmEncoder.setPositionConversionFactor(self.intakeArmConversionFactor)
+        self.intakeWhlEncoder.setDistancePerPulse(1/1024)
+        self.indexerEncoder.setDistancePerPulse(1/2048*360)
+
+        self.swerveLFTPIDNew = wpilib.controller.PIDController(0,0,0)
 
         #PID Setup
         self.swerveDriveP = 0
@@ -62,7 +66,7 @@ class io:
         self.swerveLFTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)
         self.swerveRFTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)
         self.swerveLBTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)
-        self.swerveRBTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)     
+        self.swerveRBTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)
 
         self.swerveLFTPID = self.swerveLFTMotor.getPIDController()
         self.swerveLFTPID.setP(self.swerveTurnP)
@@ -120,36 +124,22 @@ class io:
 
         self.intakeArmPID = self.shooterIntakeArmMotor.getPIDController()
         self.intakeArmP = 0.006 #0.006
-        self.intakeArmI = 0.0000 #0.0001
+        self.intakeArmI = 0.000001 #0.0001
         self.intakeArmOutputMin = -1
         self.intakeArmOutputMax = 1
 
-    
         self.intakeArmPID.setP(self.intakeArmP)
         self.intakeArmPID.setI(self.intakeArmI)
         self.intakeArmPID.setOutputRange(self.intakeArmOutputMin, self.intakeArmOutputMax)
-
-        """
-        self.shooterIntakeP = 0
-        self.shooterIntakeI = 0
-        self.shooterIntakeOutputMin = 0
-        self.shooterIntakeOutputMax = 0
-        self.shooterIntakeConversionFactor = 1
-
-        self.shooterIntakeElevationP = 0
-        self.shooterIntakeElevationI = 0
-        self.shooterIntakeElevationOutputMin = 0
-        self.shooterIntakeElevationOutputMax = 0
-        self.shooterIntakeElevationConversionFactor = 1
-        """
-
 
     def robotPeriodic(self, interfaces):        
         interfaces.shooterTopSpeedEncoder = self.shooterTopWheelEncoder.getVelocity()
         interfaces.shooterBottomSpeedEncoder = self.shooterBottomWheelEncoder.getVelocity()
         interfaces.intakeActualPos = self.intakeArmEncoder.getPosition()
-       # interfaces.indexerEncoder = self.indexerEncoder.getPosition()
-        
+        interfaces.indexerEncoder = self.indexerEncoder.getDistance()
+        interfaces.intakeWheelSpeedAct = -self.intakeWhlEncoder.getRate() * 60
+        interfaces.intakeBallDetected = self.intakePhotoSensor.get()      
+          
         interfaces.swerveLFDActSpd = 0
         interfaces.swerveRFDActSpd = 0
         interfaces.swerveLBDActSpd = 0
@@ -158,8 +148,6 @@ class io:
         interfaces.swerveRFTActPos = self.swerveRFTEncoder.getPosition()
         interfaces.swerveLBTActPos = self.swerveLBTEncoder.getPosition()
         interfaces.swerveRBTActPos = self.swerveRBTEncoder.getPosition()             
-        
-        interfaces.intakeBallDetected = self.intakePhotoSensor.get()
 
         self.sd.putNumber("indexer desired", interfaces.indexerAngle)
         self.sd.putNumber("indexer actual", interfaces.indexerEncoder)
@@ -167,9 +155,11 @@ class io:
         self.sd.putNumber("Shooter Top actual", interfaces.shooterTopSpeedEncoder)
         self.sd.putNumber("Shooter Bottom desired", interfaces.shooterManBotDesSpd)
         self.sd.putNumber("Shooter Bottom actual", interfaces.shooterBottomSpeedEncoder)
+        self.sd.putNumber("Indexer Angle", interfaces.indexerEncoder)
 
         self.sd.putNumber("Intake Arm Angle", interfaces.intakeActualPos)
         self.sd.putNumber("Intake Arm Desired Angle", interfaces.intakeDesiredPos)
+        self.sd.putNumber("Intake Wheel Speed Actual", interfaces.intakeWheelSpeedAct)
         self.sd.putBoolean("Ball Detected", interfaces.intakeBallDetected)
 
         #self.sd.putNumber("LFD Encoder", interfaces.swerveLFDActSpd)
@@ -220,9 +210,14 @@ class io:
             self.shooterTopWheelPID.setReference(interfaces.shooterTopSpeed, rev.ControlType.kVelocity)
             self.shooterBottomWheelPID.setReference(interfaces.shooterBottomSpeed, rev.ControlType.kVelocity)            
         
-        self.shooterIntakeMotor.set(interfaces.intakeWheelSpeed)
-        self.intakeArmPID.setReference(interfaces.intakeDesiredPos, rev.ControlType.kPosition)
+        #set indexer angle here
+        # positive dirve = clockwise motion
 
+        #intake wheel speed PID
+        self.shooterIntakeMotor.set(pidP(self, 0.0005, .001, interfaces.intakeWheelSpeed, interfaces.intakeWheelSpeedAct))
+        #self.shooterIntakeMotor.set(-.25)
+
+        self.intakeArmPID.setReference(interfaces.intakeDesiredPos, rev.ControlType.kPosition)
         self.climberWinchAMotor.set(interfaces.dClimbWinchPower)  
         self.climberWinchBMotor.set(interfaces.dClimbWinchPower) 
         self.climberRaiseMotor.set(interfaces.dClimbRaisePower) 
@@ -277,3 +272,21 @@ def swerveConvertToEncPosition(self, encoderActPos, swerveDesPos):
     self.sd.putNumber("RBT Compensated Command", compensatedCmd)
 
     return compensatedCmd
+
+def pidP(self, p, f, des, act):
+    error = des-act
+    cmdff = f * des
+    pcmd = p * error
+    cmd = pcmd + cmdff
+
+    print(des)
+    print(act)
+    print(error)
+    print(cmd)
+
+    if(cmd < -1):
+        cmd = -1
+    elif(cmd > 1):
+        cmd = 1
+
+    return cmd
