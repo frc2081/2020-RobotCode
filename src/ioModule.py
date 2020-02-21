@@ -211,13 +211,16 @@ class io:
             self.shooterBottomWheelPID.setReference(interfaces.shooterBottomSpeed, rev.ControlType.kVelocity)            
         
         #set indexer angle here
-        # positive dirve = clockwise motion
+        # positive drive = clockwise motion
 
         #intake wheel speed PID
-        self.shooterIntakeMotor.set(pidP(self, 0.0005, .001, interfaces.intakeWheelSpeed, interfaces.intakeWheelSpeedAct))
-        #self.shooterIntakeMotor.set(-.25)
+        if(interfaces.intakeReverse):
+            self.shooterIntakeMotor.set(pidP(self, 0.0005, .001, 450, interfaces.intakeWheelSpeedAct))
+            self.intakeArmPID.setReference(50, rev.ControlType.kPosition)
+        else:         
+            self.shooterIntakeMotor.set(pidP(self, 0.0005, .001, interfaces.intakeWheelSpeed, interfaces.intakeWheelSpeedAct))
+            self.intakeArmPID.setReference(interfaces.intakeDesiredPos, rev.ControlType.kPosition)
 
-        self.intakeArmPID.setReference(interfaces.intakeDesiredPos, rev.ControlType.kPosition)
         self.climberWinchAMotor.set(interfaces.dClimbWinchPower)  
         self.climberWinchBMotor.set(interfaces.dClimbWinchPower) 
         self.climberRaiseMotor.set(interfaces.dClimbRaisePower) 

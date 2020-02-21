@@ -80,9 +80,7 @@ class interfaces:
     intakeDesiredPos = 0
     intakeBallDetected = False
 
-    intakeManMode = False
-    intakeArmManPwr = 0
-    intakeWhlManPwr = 0
+    intakeReverse = False
 
     def __init__(self):
         pass

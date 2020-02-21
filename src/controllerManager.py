@@ -77,10 +77,7 @@ class controllerManager:
             interfaces.shooterManBotDesSpd = 0
             interfaces.indexerManPower = 0     
         
-        interfaces.intakeManMode = self.mechanismController.getStartButton()
-        if(interfaces.intakeManMode):
-            interfaces.intakeArmManPwr = self.mechanismController.getX(wpilib.XboxController.Hand.kRightHand)
-            interfaces.intakeWhlManPwr = self.mechanismController.getX(wpilib.XboxController.Hand.kLeftHand)
+        interfaces.intakeReverse = self.driveController.getBackButton()
 
     def controllerManagerSmartDashboard(self, interfaces):
         wpilib.SmartDashboard.putNumber("swerve turn command", interfaces.dTurn)
