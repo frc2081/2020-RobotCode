@@ -136,7 +136,7 @@ class io:
         interfaces.shooterTopSpeedEncoder = self.shooterTopWheelEncoder.getVelocity()
         interfaces.shooterBottomSpeedEncoder = self.shooterBottomWheelEncoder.getVelocity()
         interfaces.intakeActualPos = self.intakeArmEncoder.getPosition()
-        interfaces.indexerEncoder = self.indexerEncoder.getDistance()
+        interfaces.indexerActAng = self.indexerEncoder.getDistance()
         interfaces.intakeWheelSpeedAct = -self.intakeWhlEncoder.getRate() * 60
         interfaces.intakeBallDetected = self.intakePhotoSensor.get()      
           
@@ -149,13 +149,12 @@ class io:
         interfaces.swerveLBTActPos = self.swerveLBTEncoder.getPosition()
         interfaces.swerveRBTActPos = self.swerveRBTEncoder.getPosition()             
 
-        self.sd.putNumber("indexer desired", interfaces.indexerAngle)
-        self.sd.putNumber("indexer actual", interfaces.indexerEncoder)
+        self.sd.putNumber("indexer desired Ang", interfaces.indexerDesAng)
+        self.sd.putNumber("indexer actual Ang", interfaces.indexerActAng)
         self.sd.putNumber("Shooter Top desired", interfaces.shooterManTopDesSpd)
         self.sd.putNumber("Shooter Top actual", interfaces.shooterTopSpeedEncoder)
         self.sd.putNumber("Shooter Bottom desired", interfaces.shooterManBotDesSpd)
         self.sd.putNumber("Shooter Bottom actual", interfaces.shooterBottomSpeedEncoder)
-        self.sd.putNumber("Indexer Angle", interfaces.indexerEncoder)
 
         self.sd.putNumber("Intake Arm Angle", interfaces.intakeActualPos)
         self.sd.putNumber("Intake Arm Desired Angle", interfaces.intakeDesiredPos)

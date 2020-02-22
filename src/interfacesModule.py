@@ -58,7 +58,8 @@ class interfaces:
     shooterBottomSpeed = 0
     shooterTopSpeedEncoder = 0
     shooterBottomSpeedEncoder = 0
-    indexerAngle = 0
+    indexerDesAng = 0
+    indexerActAng = 0
     photoSensorFront = False
     photoSensorBack = False
     indexerEncoder = 0
@@ -81,6 +82,7 @@ class interfaces:
     intakeBallDetected = False
 
     intakeReverse = False
+
 
     def __init__(self):
         pass

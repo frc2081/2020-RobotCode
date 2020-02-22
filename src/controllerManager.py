@@ -41,25 +41,6 @@ class controllerManager:
         #mechanism controller
         interfaces.mShootAgainstWall = self.mechanismController.getAButton()
 
-        if self.mechanismController.getBButton() and not (self.mechanismController.getBumper(wpilib.XboxController.Hand.kRightHand)):
-            interfaces.mShootStartLine = True
-        else:
-            interfaces.mShootStartLine = False
-
-        if self.mechanismController.getBButton() & self.mechanismController.getBumper(wpilib.XboxController.Hand.kRightHand):
-            interfaces.mShootStartLineAuto = True
-        else:
-            interfaces.mShootStartLineAuto = False
-
-        if self.mechanismController.getYButton() and not self.mechanismController.getBumper(wpilib.XboxController.Hand.kRightHand):
-            interfaces.mShootTrench = True
-        else:
-            interfaces.mShootTrench = False
-
-        if self.mechanismController.getYButton() & self.mechanismController.getBumper(wpilib.XboxController.Hand.kRightHand):
-            interfaces.mShootTrenchAuto = True
-        else:
-            interfaces.mShootTrenchAuto = False
 
         #indexer and shooter manual control
         interfaces.indexerManMode = self.mechanismController.getBackButton()
