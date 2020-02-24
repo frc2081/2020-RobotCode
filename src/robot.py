@@ -10,6 +10,8 @@ import intakeSubSystem
 class MyRobot(wpilib.TimedRobot):
 
     def robotInit(self):
+
+        wpilib.CameraServer.launch()
         self.interfaces = interfacesModule.interfaces()
         self.interfaces.interfacesInit()       
          

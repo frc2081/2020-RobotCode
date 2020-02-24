@@ -16,6 +16,10 @@ class controllerManager:
         interfaces.dMoveY = self.driveController.getY(wpilib.XboxController.Hand.kLeftHand)
         interfaces.dBallIntake = self.driveController.getAButton()
 
+        interfaces.dTurn = interfaces.dTurn * abs(interfaces.dTurn)
+        interfaces.dMoveX = interfaces.dMoveX * abs(interfaces.dMoveX)
+        interfaces.dMoveY = interfaces.dMoveY * abs(interfaces.dMoveY)
+
         #Add deadband
         deadBand = 0.08
         if(abs(interfaces.dMoveX) < deadBand):
@@ -45,14 +49,21 @@ class controllerManager:
         #indexer and shooter manual control
         interfaces.indexerManMode = self.mechanismController.getBackButton()
         if(interfaces.indexerManMode):
-            interfaces.indexerManPower = self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) - self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand)
+            if(self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) > .1):
+                interfaces.indexerManPower = .25
+            elif(self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand) > .1):
+                interfaces.indexerManPower = -.25
+            else:
+                interfaces.indexerManPower = 0
+
+            #interfaces.indexerManPower = self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) - self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand)
             if(self.mechanismController.getAButtonPressed()):
-                interfaces.shooterManTopDesSpd = -4000
-                interfaces.shooterManBotDesSpd = 2200
+                interfaces.shooterManTopDesSpd = 200
+                interfaces.shooterManBotDesSpd = -1600
  
             elif(self.mechanismController.getBButtonPressed()):
-                interfaces.shooterManTopDesSpd = -1000
-                interfaces.shooterManBotDesSpd = 3500
+                interfaces.shooterManTopDesSpd = 700
+                interfaces.shooterManBotDesSpd = -1800
         else:
             interfaces.shooterManTopDesSpd = 0
             interfaces.shooterManBotDesSpd = 0

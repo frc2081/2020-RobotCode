@@ -19,8 +19,8 @@ class intakeSystem():
     intakeWheelSpdRunning = -450 #-.25 # intake speed to run when intake is lowered and pulling balls in
 
     intakePosLowered = 75 #intake position in degrees of "lowered" position for intaking baslls
-    intakePosRaised = -12#-15 intake position in degrees when it is "raised." Same as intake starting position
-    intakeRaisedThreshold = intakePosRaised + 5 #Threshold to consider the intake to be in the "raised" position
+    intakePosRaised = -8#-15 intake position in degrees when it is "raised." Same as intake starting position
+    intakeRaisedThreshold = intakePosRaised + 10 #Threshold to consider the intake to be in the "raised" position
     intakeLoweredThreshold = intakePosLowered - 10 #Threshold to consider the intake to be in the "raised" position
     intakeAllowedPosError = 1 #Allowed intake positon error in degrees
 
@@ -84,3 +84,5 @@ class intakeSystem():
         #Set final desired values to send to hardware
         interfaces.intakeDesiredPos = self.mIntakeDesPosRamped
         interfaces.intakeWheelSpeed = self.mIntakeSpeed
+        print(self.intakeState)
+        print(interfaces.intakeBallDetected)

@@ -15,8 +15,8 @@ class io:
         self.swerveRFDMotor = ctre.WPI_TalonSRX(3)
         self.swerveLBDMotor = ctre.WPI_TalonSRX(4)
         self.swerveRBDMotor = ctre.WPI_TalonSRX(1)
-        self.swerveLFTMotor = rev.CANSparkMax(33, rev.MotorType.kBrushless)
-        self.swerveRFTMotor = rev.CANSparkMax(30, rev.MotorType.kBrushless)
+        self.swerveLFTMotor = rev.CANSparkMax(30, rev.MotorType.kBrushless)
+        self.swerveRFTMotor = rev.CANSparkMax(23, rev.MotorType.kBrushless)
         self.swerveLBTMotor = rev.CANSparkMax(31, rev.MotorType.kBrushless)
         self.swerveRBTMotor = rev.CANSparkMax(32, rev.MotorType.kBrushless)
 
@@ -26,11 +26,11 @@ class io:
         self.climberRaiseMotor = rev.CANSparkMax(29, rev.MotorType.kBrushed)
 
         #Shooter System
-        self.shooterTopWheelMotor = rev.CANSparkMax(34, rev.MotorType.kBrushless)
-        self.shooterBottomWheelMotor = rev.CANSparkMax(35, rev.MotorType.kBrushless)
+        self.shooterTopWheelMotor = rev.CANSparkMax(35, rev.MotorType.kBrushless)
+        self.shooterBottomWheelMotor = rev.CANSparkMax(34, rev.MotorType.kBrushless)
         self.shooterIndexerMotor = rev.CANSparkMax(24, rev.MotorType.kBrushed)
         self.shooterIntakeMotor = rev.CANSparkMax(20, rev.MotorType.kBrushed)
-        self.shooterIntakeArmMotor = rev.CANSparkMax(26, rev.MotorType.kBrushless)
+        self.shooterIntakeArmMotor = rev.CANSparkMax(28, rev.MotorType.kBrushless)
 
         #Encoders
         self.swerveLFTEncoder = self.swerveLFTMotor.getEncoder()
@@ -124,7 +124,7 @@ class io:
 
         self.intakeArmPID = self.shooterIntakeArmMotor.getPIDController()
         self.intakeArmP = 0.006 #0.006
-        self.intakeArmI = 0.000001 #0.0001
+        self.intakeArmI = 0.00000 #0.0001
         self.intakeArmOutputMin = -1
         self.intakeArmOutputMax = 1
 
@@ -138,7 +138,7 @@ class io:
         interfaces.intakeActualPos = self.intakeArmEncoder.getPosition()
         interfaces.indexerActAng = self.indexerEncoder.getDistance()
         interfaces.intakeWheelSpeedAct = -self.intakeWhlEncoder.getRate() * 60
-        interfaces.intakeBallDetected = self.intakePhotoSensor.get()      
+        interfaces.intakeBallDetected = not(self.intakePhotoSensor.get())      
           
         interfaces.swerveLFDActSpd = 0
         interfaces.swerveRFDActSpd = 0
@@ -169,6 +169,7 @@ class io:
         self.sd.putNumber("LBT Encoder", interfaces.swerveLBTActPos)
         self.sd.putNumber("RBT Encoder", interfaces.swerveRBTActPos)
         self.sd.putNumber("LFT Encoder", interfaces.swerveLFTActPos)
+
 
     def teleopInit(self, interfaces):
         self.sd.putNumber("Shooter P", self.shooterP)
@@ -231,10 +232,10 @@ class io:
         self.swerveLBDMotor.set(-interfaces.swerveLBDDesSpd)
         self.swerveRBDMotor.set(-interfaces.swerveRBDDesSpd)
 
-        LFTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveLFTActPos, interfaces.swerveLFTDesAng)
-        RFTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveRFTActPos, interfaces.swerveRFTDesAng)
-        LBTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveLBTActPos, interfaces.swerveLBTDesAng)
-        RBTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveRBTActPos, interfaces.swerveRBTDesAng)
+        #LFTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveLFTActPos, interfaces.swerveLFTDesAng)
+        #RFTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveRFTActPos, interfaces.swerveRFTDesAng)
+        #LBTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveLBTActPos, interfaces.swerveLBTDesAng)
+        #RBTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveRBTActPos, interfaces.swerveRBTDesAng)
 
         self.swerveLFTPID.setReference(interfaces.swerveLFTDesAng, rev.ControlType.kPosition)
         self.swerveRFTPID.setReference(interfaces.swerveRFTDesAng, rev.ControlType.kPosition)
@@ -280,11 +281,6 @@ def pidP(self, p, f, des, act):
     cmdff = f * des
     pcmd = p * error
     cmd = pcmd + cmdff
-
-    print(des)
-    print(act)
-    print(error)
-    print(cmd)
 
     if(cmd < -1):
         cmd = -1
