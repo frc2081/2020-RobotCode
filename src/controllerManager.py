@@ -20,6 +20,11 @@ class controllerManager:
         interfaces.dMoveX = interfaces.dMoveX * abs(interfaces.dMoveX)
         interfaces.dMoveY = interfaces.dMoveY * abs(interfaces.dMoveY)
 
+        #When in winch mode, slow the drivetrain way down to make lining up the hook easier
+        if(driveController.getStartButton):
+            interfaces.dMoveX = interfaces.dMoveX / 4
+            interfaces.dMoveY = interfaces.dMoveY / 4        
+
         #Add deadband
         deadBand = 0.08
         if(abs(interfaces.dMoveX) < deadBand):
