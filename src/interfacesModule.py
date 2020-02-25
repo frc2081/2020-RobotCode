@@ -82,6 +82,7 @@ class interfaces:
     intakeBallDetected = False
 
     intakeReverse = False
+    intakeArmHomeDetected = False
 
 
     def __init__(self):

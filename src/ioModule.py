@@ -30,7 +30,7 @@ class io:
         self.shooterBottomWheelMotor = rev.CANSparkMax(34, rev.MotorType.kBrushless)
         self.shooterIndexerMotor = rev.CANSparkMax(24, rev.MotorType.kBrushed)
         self.shooterIntakeMotor = rev.CANSparkMax(20, rev.MotorType.kBrushed)
-        self.shooterIntakeArmMotor = rev.CANSparkMax(28, rev.MotorType.kBrushless)
+        self.shooterIntakeArmMotor = rev.CANSparkMax(28, rev.MotorType.kBrushed)
 
         #Encoders
         self.swerveLFTEncoder = self.swerveLFTMotor.getEncoder()
@@ -38,15 +38,16 @@ class io:
         self.swerveLBTEncoder = self.swerveLBTMotor.getEncoder()
         self.swerveRBTEncoder = self.swerveRBTMotor.getEncoder()
 
-        self.intakeArmEncoder = self.shooterIntakeArmMotor.getEncoder()
+        self.intakeArmEncoder = wpilib.Encoder(6,7)
         self.intakeWhlEncoder = wpilib.Encoder(0,1)
         self.indexerEncoder = wpilib.Encoder(8,9)
         self.intakePhotoSensor = wpilib.DigitalInput(4)
 
-        self.intakeArmConversionFactor = 3.599
-        self.intakeArmEncoder.setPositionConversionFactor(self.intakeArmConversionFactor)
+        self.intakeArmEncoder.setDistancePerPulse(1/1024*360)
         self.intakeWhlEncoder.setDistancePerPulse(1/1024)
         self.indexerEncoder.setDistancePerPulse(1/2048*360)
+
+        self.intakeArmHomeSwitch = wpilib.DigitalInput(2)
 
         self.swerveLFTPIDNew = wpilib.controller.PIDController(0,0,0)
 
@@ -122,23 +123,24 @@ class io:
         self.shooterIndexerOutputMax = 1
         self.shooterIndexerConversionFactor = 360
 
-        self.intakeArmPID = self.shooterIntakeArmMotor.getPIDController()
-        self.intakeArmP = 0.006 #0.006
+        #self.intakeArmPID = self.shooterIntakeArmMotor.getPIDController()
+        self.intakeArmP = 0.018 #0.006
         self.intakeArmI = 0.00000 #0.0001
         self.intakeArmOutputMin = -1
         self.intakeArmOutputMax = 1
 
-        self.intakeArmPID.setP(self.intakeArmP)
-        self.intakeArmPID.setI(self.intakeArmI)
-        self.intakeArmPID.setOutputRange(self.intakeArmOutputMin, self.intakeArmOutputMax)
+        #self.intakeArmPID.setP(self.intakeArmP)
+        #self.intakeArmPID.setI(self.intakeArmI)
+        #self.intakeArmPID.setOutputRange(self.intakeArmOutputMin, self.intakeArmOutputMax)
 
     def robotPeriodic(self, interfaces):        
         interfaces.shooterTopSpeedEncoder = self.shooterTopWheelEncoder.getVelocity()
         interfaces.shooterBottomSpeedEncoder = self.shooterBottomWheelEncoder.getVelocity()
-        interfaces.intakeActualPos = self.intakeArmEncoder.getPosition()
+        interfaces.intakeActualPos = self.intakeArmEncoder.getDistance()
         interfaces.indexerActAng = self.indexerEncoder.getDistance()
         interfaces.intakeWheelSpeedAct = -self.intakeWhlEncoder.getRate() * 60
-        interfaces.intakeBallDetected = not(self.intakePhotoSensor.get())      
+        interfaces.intakeBallDetected = not(self.intakePhotoSensor.get())
+        interfaces.intakeArmHomeDetected = self.intakeArmHomeSwitch.get()      
           
         interfaces.swerveLFDActSpd = 0
         interfaces.swerveRFDActSpd = 0
@@ -214,13 +216,18 @@ class io:
         # positive drive = clockwise motion
 
         #intake wheel speed PID
-        if(interfaces.intakeReverse):
-            self.shooterIntakeMotor.set(pidP(self, 0.0005, .001, 450, interfaces.intakeWheelSpeedAct))
-            self.intakeArmPID.setReference(50, rev.ControlType.kPosition)
+        if(interfaces.intakeReverse): 
+            self.shooterIntakeMotor.set(pidP(self, 0.0005, .001, 450, interfaces.intakeWheelSpeedAct,-1, 1))
+            #self.intakeArmPID.setReference(50, rev.ControlType.kPosition)
+            self.shooterIntakeArmMotor.set(pidP(self, self.intakeArmP, 0, 50, interfaces.intakeActualPos, -.5, .5))
         else:         
-            self.shooterIntakeMotor.set(pidP(self, 0.0005, .001, interfaces.intakeWheelSpeed, interfaces.intakeWheelSpeedAct))
-            self.intakeArmPID.setReference(interfaces.intakeDesiredPos, rev.ControlType.kPosition)
+            self.shooterIntakeMotor.set(pidP(self, 0.0005, .001, interfaces.intakeWheelSpeed, interfaces.intakeWheelSpeedAct, -1, 1))
+            if((interfaces.intakeDesiredPos < 5) and (interfaces.intakeActualPos < 5)):
+                self.shooterIntakeArmMotor.set(-0.15)
+            else:
+                self.shooterIntakeArmMotor.set(pidP(self, self.intakeArmP, 0, interfaces.intakeDesiredPos, interfaces.intakeActualPos, -.5, .5))
 
+        print(self.shooterIntakeArmMotor.get())
         self.climberWinchAMotor.set(interfaces.dClimbWinchPower)  
         self.climberWinchBMotor.set(interfaces.dClimbWinchPower) 
         self.climberRaiseMotor.set(interfaces.dClimbRaisePower) 
@@ -276,7 +283,7 @@ def swerveConvertToEncPosition(self, encoderActPos, swerveDesPos):
 
     return compensatedCmd
 
-def pidP(self, p, f, des, act):
+def pidP(self, p, f, des, act, negcmdlim, poscmdlim):
     error = des-act
     cmdff = f * des
     pcmd = p * error

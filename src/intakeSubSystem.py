@@ -18,14 +18,14 @@ class intakeSystem():
     intakeWheelSpdLoading = -450#-.25 # intake speed to run when moving a ball from the ground into the robot
     intakeWheelSpdRunning = -450 #-.25 # intake speed to run when intake is lowered and pulling balls in
 
-    intakePosLowered = 75 #intake position in degrees of "lowered" position for intaking baslls
+    intakePosLowered = 73 #intake position in degrees of "lowered" position for intaking baslls
     intakePosRaised = -8#-15 intake position in degrees when it is "raised." Same as intake starting position
-    intakeRaisedThreshold = intakePosRaised + 10 #Threshold to consider the intake to be in the "raised" position
-    intakeLoweredThreshold = intakePosLowered - 10 #Threshold to consider the intake to be in the "raised" position
+    intakeRaisedThreshold = intakePosRaised + 5 #Threshold to consider the intake to be in the "raised" position
+    intakeLoweredThreshold = intakePosLowered - 5 #Threshold to consider the intake to be in the "raised" position
     intakeAllowedPosError = 1 #Allowed intake positon error in degrees
 
-    intakeLoweringSpd = 60 #45degrees per second to move the intake when lowering it
-    intakeRaisingSpd = 20 #degrees per secont to move the intake when raising it
+    intakeLoweringSpd = 40 #45degrees per second to move the intake when lowering it
+    intakeRaisingSpd = 40 #degrees per secont to move the intake when raising it
     
     mIntakeActPos = 0 #internal actual position of the intake arm
     mIntakeDesPos = 0 #internal desired position of the intake arm
@@ -48,6 +48,9 @@ class intakeSystem():
         if(self.intakeState == self.intakeStates.Idle):
             self.mIntakeSpeed = self.intakeWheelSpdHold
             self.mIntakeDesPos = self.intakePosRaised
+
+            if(self.mIntakeDesPos < self.intakePosRaised):
+                self.mIntakeDesPos = self.mIntakeActPos
 
             #transition conditions
             if(interfaces.dBallIntake == True):
