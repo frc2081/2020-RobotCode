@@ -61,14 +61,15 @@ class controllerManager:
             else:
                 interfaces.indexerManPower = 0
 
-            #interfaces.indexerManPower = self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) - self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand)
+            #Wall Shot
             if(self.mechanismController.getAButtonPressed()):
-                interfaces.shooterManTopDesSpd = 200
-                interfaces.shooterManBotDesSpd = -1600
- 
+                interfaces.shooterManTopDesSpd = interfaces.shooterSpdTopWallShot
+                interfaces.shooterManBotDesSpd = interfaces.shooterSpdBotWallShot
+            
+            #10 foot shot
             elif(self.mechanismController.getBButtonPressed()):
-                interfaces.shooterManTopDesSpd = 700
-                interfaces.shooterManBotDesSpd = -1800
+                interfaces.shooterManTopDesSpd = interfaces.shooterSpdTopLongShot
+                interfaces.shooterManBotDesSpd = interfaces.shooterSpdBotLongShot
         else:
             interfaces.shooterManTopDesSpd = 0
             interfaces.shooterManBotDesSpd = 0

@@ -55,8 +55,8 @@ class MyRobot(wpilib.TimedRobot):
             self.autoDriveTime = 600
             self.autoDriveX = .5    
             self.autoDriveY = 0
-            self.autoShooterTopSpd = 700
-            self.autoShooterBotSpd = -1800
+            self.autoShooterTopSpd = self.interfaces.shooterSpdTopLongShot
+            self.autoShooterBotSpd = self.interfaces.shooterSpdBotLongShot
 
         #Stationary shot against wall
         elif(self.autoMode == 1):
@@ -65,8 +65,8 @@ class MyRobot(wpilib.TimedRobot):
             self.autoDriveTime = 600
             self.autoDriveX = 0 
             self.autoDriveY = 0
-            self.autoShooterTopSpd = 200
-            self.autoShooterBotSpd = -1600
+            self.autoShooterTopSpd = self.interfaces.shooterSpdBotWallShot
+            self.autoShooterBotSpd = self.interfaces.shooterSpdBotWallShot
         pass
 
     def autonomousPeriodic(self):

@@ -226,11 +226,6 @@ class io:
         self.swerveLBDMotor.set(-interfaces.swerveLBDDesSpd)
         self.swerveRBDMotor.set(-interfaces.swerveRBDDesSpd)
 
-        #LFTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveLFTActPos, interfaces.swerveLFTDesAng)
-        #RFTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveRFTActPos, interfaces.swerveRFTDesAng)
-        #LBTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveLBTActPos, interfaces.swerveLBTDesAng)
-        #RBTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveRBTActPos, interfaces.swerveRBTDesAng)
-
         self.swerveLFTPIDNew.setSetpoint(interfaces.swerveLFTDesAng)
         self.swerveRFTPIDNew.setSetpoint(interfaces.swerveRFTDesAng)
         self.swerveLBTPIDNew.setSetpoint(interfaces.swerveLBTDesAng)
