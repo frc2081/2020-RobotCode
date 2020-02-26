@@ -49,8 +49,6 @@ class io:
 
         self.intakeArmHomeSwitch = wpilib.DigitalInput(2)
 
-        self.swerveLFTPIDNew = wpilib.controller.PIDController(0,0,0)
-
         #PID Setup
         self.swerveDriveP = 0
         self.swerveDriveI = 0
@@ -69,26 +67,16 @@ class io:
         self.swerveLBTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)
         self.swerveRBTEncoder.setPositionConversionFactor(self.swerveTurnConversionFactor)
 
-        self.swerveLFTPID = self.swerveLFTMotor.getPIDController()
-        self.swerveLFTPID.setP(self.swerveTurnP)
-        self.swerveLFTPID.setI(self.swerveTurnI)
-        self.swerveLFTPID.setOutputRange(self.swerveTurnOutputMin, self.swerveTurnOutputMax)
+        self.swerveLFTPIDNew = wpilib.controller.PIDController(self.swerveTurnP,self.swerveTurnI, 0)
+        self.swerveRFTPIDNew = wpilib.controller.PIDController(self.swerveTurnP,self.swerveTurnI, 0)
+        self.swerveLBTPIDNew = wpilib.controller.PIDController(self.swerveTurnP,self.swerveTurnI, 0)
+        self.swerveRBTPIDNew = wpilib.controller.PIDController(self.swerveTurnP,self.swerveTurnI, 0)
 
-        self.swerveRFTPID = self.swerveRFTMotor.getPIDController()
-        self.swerveRFTPID.setP(self.swerveTurnP)
-        self.swerveRFTPID.setI(self.swerveTurnI)
-        self.swerveRFTPID.setOutputRange(self.swerveTurnOutputMin, self.swerveTurnOutputMax)
+        self.swerveLFTPIDNew.enableContinuousInput()
+        self.swerveRFTPIDNew.enableContinuousInput()
+        self.swerveLBTPIDNew.enableContinuousInput()
+        self.swerveRBTPIDNew.enableContinuousInput()
 
-        self.swerveLBTPID = self.swerveLBTMotor.getPIDController()
-        self.swerveLBTPID.setP(self.swerveTurnP)
-        self.swerveLBTPID.setI(self.swerveTurnI)
-        self.swerveLBTPID.setOutputRange(self.swerveTurnOutputMin, self.swerveTurnOutputMax)
-
-        self.swerveRBTPID = self.swerveRBTMotor.getPIDController()
-        self.swerveRBTPID.setP(self.swerveTurnP)
-        self.swerveRBTPID.setI(self.swerveTurnI)
-        self.swerveRBTPID.setOutputRange(self.swerveTurnOutputMin, self.swerveTurnOutputMax)
-        
         self.shooterTopWheelEncoder = self.shooterTopWheelMotor.getEncoder()
         self.shooterTopWheelEncoder.setPosition(0)
 
@@ -244,44 +232,15 @@ class io:
         #LBTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveLBTActPos, interfaces.swerveLBTDesAng)
         #RBTDesPosCmd = swerveConvertToEncPosition(self, interfaces.swerveRBTActPos, interfaces.swerveRBTDesAng)
 
-        self.swerveLFTPID.setReference(interfaces.swerveLFTDesAng, rev.ControlType.kPosition)
-        self.swerveRFTPID.setReference(interfaces.swerveRFTDesAng, rev.ControlType.kPosition)
-        self.swerveLBTPID.setReference(interfaces.swerveLBTDesAng, rev.ControlType.kPosition)
-        self.swerveRBTPID.setReference(interfaces.swerveRBTDesAng, rev.ControlType.kPosition) 
+        self.swerveLFTPIDNew.setSetpoint(interfaces.swerveLFTDesAng)
+        self.swerveRFTPIDNew.setSetpoint(interfaces.swerveRFTDesAng)
+        self.swerveLBTPIDNew.setSetpoint(interfaces.swerveLBTDesAng)
+        self.swerveRBTPIDNew.setSetpoint(interfaces.swerveRBTDesAng)
 
-#Translate desired swerve position from the swerve library into a desired positon
-#for a swerve module with a relative encoder
-def swerveConvertToEncPosition(self, encoderActPos, swerveDesPos):
-
-    self.sd.putNumber("EncoderActPos", encoderActPos)
-    self.sd.putNumber("SwerveDesPos", swerveDesPos)
-
-    #Convert from encoder position space (-infinite to + infinite) to swerve library position space (0 to 360)
-    swerveActPos = encoderActPos % 360
-    degreesToTurn = 0
-    direction = 0
-
-    #Determine if the best path to the new position is across a zero-crossing
-    #Zero crossing from large angle to small angle (ex. 355 to 5)
-    if((swerveActPos > 180) and (swerveDesPos < swerveActPos - 180)):
-        degreesToTurn = 360 + swerveActPos - swerveDesPos
-        direction = 1
-    #Zero crossing from small angle to large angle (ex. 5 to 355)
-    elif((swerveActPos < 180) and (swerveDesPos > swerveActPos + 180)):
-        degreesToTurn = -360 - swerveActPos + swerveDesPos
-        direction = 2
-    #no zero crossing
-    else:
-        degreesToTurn = swerveDesPos - swerveActPos
-        direction = 3
-
-    compensatedCmd = encoderActPos + degreesToTurn
-
-    self.sd.putNumber("Direction", direction)
-    self.sd.putNumber("RBT Degrees to Turn", degreesToTurn)
-    self.sd.putNumber("RBT Compensated Command", compensatedCmd)
-
-    return compensatedCmd
+        self.swerveLFTMotor.set(self.swerveLFTPIDNew.calculate(interfaces.swerveLFTActPos))
+        self.swerveRFTMotor.set(self.swerveRFTPIDNew.calculate(interfaces.swerveRFTActPos))
+        self.swerveLBTMotor.set(self.swerveLBTPIDNew.calculate(interfaces.swerveLBTActPos))
+        self.swerveRBTMotor.set(self.swerveRBTPIDNew.calculate(interfaces.swerveRBTActPos))
 
 def pidP(self, p, f, des, act, negcmdlim, poscmdlim):
     error = des-act
