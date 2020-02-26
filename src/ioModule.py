@@ -72,10 +72,10 @@ class io:
         self.swerveLBTPIDNew = wpilib.controller.PIDController(self.swerveTurnP,self.swerveTurnI, 0)
         self.swerveRBTPIDNew = wpilib.controller.PIDController(self.swerveTurnP,self.swerveTurnI, 0)
 
-        self.swerveLFTPIDNew.enableContinuousInput()
-        self.swerveRFTPIDNew.enableContinuousInput()
-        self.swerveLBTPIDNew.enableContinuousInput()
-        self.swerveRBTPIDNew.enableContinuousInput()
+        self.swerveLFTPIDNew.enableContinuousInput(0,360)
+        self.swerveRFTPIDNew.enableContinuousInput(0,360)
+        self.swerveLBTPIDNew.enableContinuousInput(0,360)
+        self.swerveRBTPIDNew.enableContinuousInput(0,360)
 
         self.shooterTopWheelEncoder = self.shooterTopWheelMotor.getEncoder()
         self.shooterTopWheelEncoder.setPosition(0)
@@ -206,7 +206,6 @@ class io:
         #intake wheel speed PID
         if(interfaces.intakeReverse): 
             self.shooterIntakeMotor.set(pidP(self, 0.0005, .001, 450, interfaces.intakeWheelSpeedAct,-1, 1))
-            #self.intakeArmPID.setReference(50, rev.ControlType.kPosition)
             self.shooterIntakeArmMotor.set(pidP(self, self.intakeArmP, 0, 50, interfaces.intakeActualPos, -.5, .5))
         else:         
             self.shooterIntakeMotor.set(pidP(self, 0.0005, .001, interfaces.intakeWheelSpeed, interfaces.intakeWheelSpeedAct, -1, 1))
