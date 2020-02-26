@@ -39,6 +39,7 @@ class MyRobot(wpilib.TimedRobot):
         pass
 
     def autonomousPeriodic(self):
+
         pass
 
     def teleopInit(self):
