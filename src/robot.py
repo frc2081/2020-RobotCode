@@ -13,8 +13,12 @@ class MyRobot(wpilib.TimedRobot):
     autoSpoolTime = 100
     autoShootTime = 500
     autoDriveTime = 600
+    autoShooterTopSpd = 700
+    autoShooterBotSpd = -1800
     autoDriveX = .5    
     autoDriveY = 0
+
+    autoMode = 0 # 0 = 10 foot shot, 1 = shot against wall
 
     def robotInit(self):
 
@@ -40,17 +44,36 @@ class MyRobot(wpilib.TimedRobot):
         pass
        
         self.ioInst.robotPeriodic(self.interfaces)
-        #self.controllerManagerInst.controllerManagerSmartDashboard(self.interfaces)
 
     def autonomousInit(self):
         self.autoTimer = 0
+        #Configure Auto mode
+        #shot from 10 foot line
+        if(self.autoMode == 0):
+            self.autoSpoolTime = 100
+            self.autoShootTime = 500
+            self.autoDriveTime = 600
+            self.autoDriveX = .5    
+            self.autoDriveY = 0
+            self.autoShooterTopSpd = 700
+            self.autoShooterBotSpd = -1800
+
+        #Stationary shot against wall
+        elif(self.autoMode == 1):
+            self.autoSpoolTime = 100
+            self.autoShootTime = 500
+            self.autoDriveTime = 600
+            self.autoDriveX = 0 
+            self.autoDriveY = 0
+            self.autoShooterTopSpd = 200
+            self.autoShooterBotSpd = -1600
         pass
 
     def autonomousPeriodic(self):
         self.autoTimer = self.autoTimer + 1
 
-        self.interfaces.shooterManTopDesSpd = 700
-        self.interfaces.shooterManBotDesSpd = -1800
+        self.interfaces.shooterManTopDesSpd = self.autoShooterTopSpd
+        self.interfaces.shooterManBotDesSpd = self.autoShooterBotSpd
         self.interfaces.dMoveY = 0
         self.interfaces.dMoveX = 0
 
