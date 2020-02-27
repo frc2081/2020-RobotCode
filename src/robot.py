@@ -61,7 +61,7 @@ class MyRobot(wpilib.TimedRobot):
         if(self.autoMode == 0):
             self.autoSpoolTime = 100
             self.autoShootTime = 500
-            self.autoDriveTime = 600
+            self.autoDriveTime = 530
             self.autoDriveX = .5    
             self.autoDriveY = 0
             self.autoShooterTopSpd = self.interfaces.shooterSpdTopLongShot
@@ -71,7 +71,7 @@ class MyRobot(wpilib.TimedRobot):
         elif(self.autoMode == 1):
             self.autoSpoolTime = 100
             self.autoShootTime = 500
-            self.autoDriveTime = 600
+            self.autoDriveTime = 530
             self.autoDriveX = 0 
             self.autoDriveY = 0
             self.autoShooterTopSpd = self.interfaces.shooterSpdBotWallShot

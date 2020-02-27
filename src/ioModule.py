@@ -171,9 +171,9 @@ class io:
 
 
     def teleopPeriodic(self, interfaces):
-        shooterNewP = self.sd.getNumber("Shooter P", 0)
+        shooterNewP = self.sd.getNumber("Shooter P", 0.00005)
         shooterNewI = self.sd.getNumber("Shooter I", 0)
-        shooterNewF = self.sd.getNumber("Shooter F", 0)
+        shooterNewF = self.sd.getNumber("Shooter F", 0.0005)
 
         if (shooterNewP) != self.shooterP:
             self.shooterP = shooterNewP
