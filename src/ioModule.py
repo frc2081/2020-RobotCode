@@ -192,6 +192,7 @@ class io:
 
         if(interfaces.indexerManMode == True):
             self.shooterIndexerMotor.set(interfaces.indexerManPower)
+            print(str(interfaces.shooterManTopDesSpd))
             self.shooterTopWheelPID.setReference(interfaces.shooterManTopDesSpd , rev.ControlType.kVelocity)
             self.shooterBottomWheelPID.setReference(interfaces.shooterManBotDesSpd, rev.ControlType.kVelocity)
         else:
