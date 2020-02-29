@@ -83,9 +83,9 @@ class io:
         self.shooterBottomWheelEncoder = self.shooterBottomWheelMotor.getEncoder()
         self.shooterBottomWheelEncoder.setPosition(0)
 
-        self.shooterP = 0.00005
+        self.shooterP = 0.00025
         self.shooterI = 0
-        self.shooterF = 0.0005
+        self.shooterF = 0.00018
         self.shooterOutputMin = -1
         self.shooterOutputMax = 1
         self.shooterConversionFactor = 1

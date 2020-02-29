@@ -17,11 +17,11 @@ class MyRobot(wpilib.TimedRobot):
     #^started at 500
     autoDriveTime = 530
     #^started at 600
-    autoShooterTopSpd = 700
+    autoShooterTopSpd = 750
     #^started at 700
     autoShooterBotSpd = -1800
     #^started at -1800
-    autoDriveX = .5
+    autoDriveX = -.5
     #^started at .5    
     autoDriveY = 0
     #^started at 0
@@ -85,6 +85,7 @@ class MyRobot(wpilib.TimedRobot):
 
         if(self.autoTimer < self.autoShootTime):
             self.interfaces.indexerManMode = True
+            self.interfaces.indexerManPower = 0
             self.interfaces.shooterManTopDesSpd = self.autoShooterTopSpd
             self.interfaces.shooterManBotDesSpd = self.autoShooterBotSpd
             self.interfaces.dMoveY = 0
@@ -101,6 +102,10 @@ class MyRobot(wpilib.TimedRobot):
             self.interfaces.indexerManPower = 0
             self.interfaces.shooterManTopDesSpd = 0
             self.interfaces.shooterManBotDesSpd = 0
+
+        if(self.autoTimer > self.autoDriveTime):
+            self.interfaces.dMoveX = 0
+            self.interfaces.dMoveY = 0
 
         self.driveManagerInst.DriveManagerPeriodic(self.interfaces)
         self.intake.teleopPeriodic(self.interfaces)
