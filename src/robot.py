@@ -30,7 +30,7 @@ class MyRobot(wpilib.TimedRobot):
 
     def robotInit(self):
 
-        wpilib.CameraServer.launch()
+        wpilib.CameraServer.launch('vision.py:main')
         self.interfaces = interfacesModule.interfaces()
         self.interfaces.interfacesInit()       
          
