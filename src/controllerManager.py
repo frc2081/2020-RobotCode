@@ -50,18 +50,19 @@ class controllerManager:
             interfaces.dClimbRaisePower = 0
 
         #mechanism controller
-        interfaces.mIndexerAdvance = self.mechanismController.getAButton()
-        interfaces.mIndexerReverse = self.mechanismController.getBButton()
+        interfaces.mIndexerAdvance = self.mechanismController.getAButtonPressed()
+        interfaces.mIndexerReverse = self.mechanismController.getBButtonPressed()
 
         #indexer and shooter manual control
         interfaces.indexerManMode = self.mechanismController.getBackButton()
         if(interfaces.indexerManMode):
-            if(self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) > .1):
-                interfaces.indexerManPower = .15
-            elif(self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand) > .1):
-                interfaces.indexerManPower = -.15
-            else:
-                interfaces.indexerManPower = 0
+            #if(self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) > .1):
+                #interfaces.indexerManPower = .15
+            #elif(self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand) > .1):
+                #interfaces.indexerManPower = -.15
+            interfaces.indexerManPower = self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) - self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand)
+            #else:
+                #interfaces.indexerManPower = 0
 
             #Wall Shot
             if(self.mechanismController.getAButtonPressed()):
@@ -72,11 +73,20 @@ class controllerManager:
             elif(self.mechanismController.getBButtonPressed()):
                 interfaces.shooterManTopDesSpd = interfaces.shooterSpdTopLongShot
                 interfaces.shooterManBotDesSpd = interfaces.shooterSpdBotLongShot
-        else:
-            interfaces.shooterManTopDesSpd = 0
-            interfaces.shooterManBotDesSpd = 0
-            interfaces.indexerManPower = 0     
-        
+        else: 
+
+            if(self.mechanismController.getXButtonPressed()):
+                interfaces.shooterManTopDesSpd = interfaces.shooterSpdTopWallShot
+                interfaces.shooterManBotDesSpd = interfaces.shooterSpdBotWallShot
+            #10 foot shot
+            elif(self.mechanismController.getYButtonPressed()):
+                interfaces.shooterManTopDesSpd = interfaces.shooterSpdTopLongShot
+                interfaces.shooterManBotDesSpd = interfaces.shooterSpdBotLongShot
+            elif(self.mechanismController.getStartButtonPressed()):
+                interfaces.shooterManTopDesSpd = 0
+                interfaces.shooterManBotDesSpd = 0
+
+
         interfaces.intakeReverse = self.driveController.getBackButton()
 
     def controllerManagerSmartDashboard(self, interfaces):

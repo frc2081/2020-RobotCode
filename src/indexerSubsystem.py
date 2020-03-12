@@ -31,9 +31,9 @@ class indexerSystem():
         #Keep indexer desired position in sync when indexer is being moved via manual control
         #if indexer moves past next or previous increment under manual control, set the desired position to that increment
         if(interfaces.indexerActAng > (self.mIndexerDesAng + self.mIndexerIncrement + self.mIndexerAllowedAngError)):
-            pass
+            self.mIndexerDesAng = self.mIndexerDesAng + self.mIndexerIncrement
         elif(interfaces.indexerActAng < (self.mIndexerDesAng - self.mIndexerIncrement - self.mIndexerAllowedAngError)):
-            pass
+            self.mIndexerDesAng =self.mIndexerDesAng - self.mIndexerIncrement
 
         if((self.mIndexerDesAngRamped < self.mIndexerDesAng + self.mIndexerAllowedAngError) and (self.mIndexerDesAngRamped > self.mIndexerDesAng - self.mIndexerAllowedAngError)):
             self.mIndexerDesAngRamped = self.mIndexerDesAng

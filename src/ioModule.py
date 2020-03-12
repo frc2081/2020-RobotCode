@@ -116,8 +116,8 @@ class io:
         self.intakeArmOutputMin = -.75
         self.intakeArmOutputMax = .75
 
-        self.indexerP = 0.018 #0.006
-        self.indexerI = 0.00000 #0.0001
+        self.indexerP = -0.014 #0.006
+        self.indexerF = 0.0 #0.0001
         self.indexerOutputMin = -1
         self.indexerOutputMax = 1
 
@@ -171,6 +171,9 @@ class io:
 
 
     def teleopPeriodic(self, interfaces):
+        print(self.indexerEncoder.getDistance())
+        print(interfaces.indexerDesAng)
+
         shooterNewP = self.sd.getNumber("Shooter P", 0.00005)
         shooterNewI = self.sd.getNumber("Shooter I", 0)
         shooterNewF = self.sd.getNumber("Shooter F", 0.0005)
@@ -196,9 +199,9 @@ class io:
             self.shooterTopWheelPID.setReference(interfaces.shooterManTopDesSpd , rev.ControlType.kVelocity)
             self.shooterBottomWheelPID.setReference(interfaces.shooterManBotDesSpd, rev.ControlType.kVelocity)
         else:
-            self.shooterIndexerMotor.set(pidP(self, self.indexerP, 0, interfaces.indexerDesAng, interfaces.indexerActAng, -.5, .5))
-            self.shooterTopWheelPID.setReference(interfaces.shooterTopSpeed, rev.ControlType.kVelocity)
-            self.shooterBottomWheelPID.setReference(interfaces.shooterBottomSpeed, rev.ControlType.kVelocity)            
+            self.shooterIndexerMotor.set(pidP(self, self.indexerP, self.indexerF, interfaces.indexerDesAng, interfaces.indexerActAng, -.5, .5))
+            self.shooterTopWheelPID.setReference(interfaces.shooterManTopDesSpd, rev.ControlType.kVelocity)
+            self.shooterBottomWheelPID.setReference(interfaces.shooterManBotDesSpd, rev.ControlType.kVelocity)            
         
         #set indexer angle here
         # positive drive = clockwise motion
@@ -212,9 +215,7 @@ class io:
             if((interfaces.intakeDesiredPos < 5) and (interfaces.intakeActualPos < 5)):
                 self.shooterIntakeArmMotor.set(-0.15)
             else:
-                self.shooterIntakeArmMotor.set(pidP(self, self.intakeArmP, 0, interfaces.intakeDesiredPos, interfaces.intakeActualPos, self.intakeArmOutputMin, self.intakeArmOutputMax))
-
-        print(self.shooterIntakeArmMotor.get())       
+                self.shooterIntakeArmMotor.set(pidP(self, self.intakeArmP, 0, interfaces.intakeDesiredPos, interfaces.intakeActualPos, self.intakeArmOutputMin, self.intakeArmOutputMax))     
         
         self.climberWinchAMotor.set(interfaces.dClimbWinchPower)  
         self.climberWinchBMotor.set(interfaces.dClimbWinchPower) 
