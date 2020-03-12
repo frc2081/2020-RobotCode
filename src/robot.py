@@ -17,9 +17,9 @@ class MyRobot(wpilib.TimedRobot):
     #^started at 500
     autoDriveTime = 530
     #^started at 600
-    autoShooterTopSpd = 750
+    autoShooterTopSpd = 300
     #^started at 700
-    autoShooterBotSpd = -1800
+    autoShooterBotSpd = -3800
     #^started at -1800
     autoDriveX = -.5
     #^started at .5    

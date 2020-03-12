@@ -16,14 +16,16 @@ class controllerManager:
         interfaces.dMoveY = self.driveController.getY(wpilib.XboxController.Hand.kLeftHand)
         interfaces.dBallIntake = self.driveController.getAButton()
 
-        interfaces.dTurn = interfaces.dTurn * abs(interfaces.dTurn)
+        #interfaces.dTurn = (interfaces.dTurn * abs(interfaces.dTurn) * (abs(interfaces.dTurn) / 2))
+        interfaces.dTurn = (interfaces.dTurn ** 5)
         interfaces.dMoveX = interfaces.dMoveX * abs(interfaces.dMoveX)
         interfaces.dMoveY = interfaces.dMoveY * abs(interfaces.dMoveY)
 
         #When in winch mode, slow the drivetrain way down to make lining up the hook easier
         if(self.driveController.getStartButton()):
-            interfaces.dMoveX = interfaces.dMoveX / 4
-            interfaces.dMoveY = interfaces.dMoveY / 4        
+            interfaces.dMoveX = interfaces.dMoveX / 6
+            interfaces.dMoveY = interfaces.dMoveY / 6      
+            interfaces.dTurn = interfaces.dTurn / 2
 
         #Add deadband
         deadBand = 0.04
@@ -40,7 +42,7 @@ class controllerManager:
             if(self.driveController.getBumper(wpilib.XboxController.Hand.kRightHand)):
                 interfaces.dClimbRaisePower = .4
             elif(self.driveController.getBumper(wpilib.XboxController.Hand.kLeftHand)):
-                interfaces.dClimbRaisePower = -.4
+                interfaces.dClimbRaisePower = -.6
             else:
                 interfaces.dClimbRaisePower = 0
         else:
@@ -55,9 +57,9 @@ class controllerManager:
         interfaces.indexerManMode = self.mechanismController.getBackButton()
         if(interfaces.indexerManMode):
             if(self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kLeftHand) > .1):
-                interfaces.indexerManPower = .25
+                interfaces.indexerManPower = .15
             elif(self.mechanismController.getTriggerAxis(wpilib.XboxController.Hand.kRightHand) > .1):
-                interfaces.indexerManPower = -.25
+                interfaces.indexerManPower = -.15
             else:
                 interfaces.indexerManPower = 0
 

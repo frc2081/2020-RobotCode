@@ -65,10 +65,10 @@ class interfaces:
     photoSensorBack = False
     indexerEncoder = 0
 
-    shooterSpdTopLongShot = 700     #700
-    shooterSpdBotLongShot = -3500   #-1800
-    shooterSpdTopWallShot = 1050     #200    #600
-    shooterSpdBotWallShot = -4600   #-1600
+    shooterSpdTopLongShot = 300     #700                    #600
+    shooterSpdBotLongShot = -3800   #-1800                  #3500
+    shooterSpdTopWallShot = 1900     #200    #600           #1050       #1900       #3300
+    shooterSpdBotWallShot = -1950   #-1600                  #4600       #1900       #1800
 
     indexerManMode = False
     indexerManPower = 0
