@@ -48,8 +48,8 @@ class controllerManager:
             interfaces.dClimbRaisePower = 0
 
         #mechanism controller
-        interfaces.mShootAgainstWall = self.mechanismController.getAButton()
-
+        interfaces.mIndexerAdvance = self.mechanismController.getAButton()
+        interfaces.mIndexerReverse = self.mechanismController.getBButton()
 
         #indexer and shooter manual control
         interfaces.indexerManMode = self.mechanismController.getBackButton()

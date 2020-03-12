@@ -43,9 +43,9 @@ class io:
         self.indexerEncoder = wpilib.Encoder(8,9)
         self.intakePhotoSensor = wpilib.DigitalInput(4)
 
-        self.intakeArmEncoder.setDistancePerPulse(1/1024*360)
-        self.intakeWhlEncoder.setDistancePerPulse(1/1024)
-        self.indexerEncoder.setDistancePerPulse(1/2048*360)
+        self.intakeArmEncoder.setDistancePerPulse(1/1024*360) #1024 pulses per shaft rotation, 360 degrees per rotation
+        self.intakeWhlEncoder.setDistancePerPulse(1/1024) #this is not right, but the shooter is tuned for it
+        self.indexerEncoder.setDistancePerPulse(1/2048*360) #2048 pulses per shaft rotataion, 360 degrees per rotation
 
         self.intakeArmHomeSwitch = wpilib.DigitalInput(2)
 
@@ -111,15 +111,15 @@ class io:
         self.shooterIndexerOutputMax = 1
         self.shooterIndexerConversionFactor = 360
 
-        #self.intakeArmPID = self.shooterIntakeArmMotor.getPIDController()
         self.intakeArmP = 0.018 #0.006
         self.intakeArmI = 0.00000 #0.0001
-        self.intakeArmOutputMin = -1
-        self.intakeArmOutputMax = 1
+        self.intakeArmOutputMin = -.75
+        self.intakeArmOutputMax = .75
 
-        #self.intakeArmPID.setP(self.intakeArmP)
-        #self.intakeArmPID.setI(self.intakeArmI)
-        #self.intakeArmPID.setOutputRange(self.intakeArmOutputMin, self.intakeArmOutputMax)
+        self.indexerP = 0.018 #0.006
+        self.indexerI = 0.00000 #0.0001
+        self.indexerOutputMin = -1
+        self.indexerOutputMax = 1
 
     def robotPeriodic(self, interfaces):        
         interfaces.shooterTopSpeedEncoder = self.shooterTopWheelEncoder.getVelocity()
@@ -196,8 +196,7 @@ class io:
             self.shooterTopWheelPID.setReference(interfaces.shooterManTopDesSpd , rev.ControlType.kVelocity)
             self.shooterBottomWheelPID.setReference(interfaces.shooterManBotDesSpd, rev.ControlType.kVelocity)
         else:
-            #**********NEED INDEXER DESIRED ANGLE SET HERE**********
-            self.shooterIndexerMotor.set(0)
+            self.shooterIndexerMotor.set(pidP(self, self.indexerP, 0, interfaces.indexerDesAng, interfaces.indexerActAng, -.5, .5))
             self.shooterTopWheelPID.setReference(interfaces.shooterTopSpeed, rev.ControlType.kVelocity)
             self.shooterBottomWheelPID.setReference(interfaces.shooterBottomSpeed, rev.ControlType.kVelocity)            
         
@@ -213,9 +212,10 @@ class io:
             if((interfaces.intakeDesiredPos < 5) and (interfaces.intakeActualPos < 5)):
                 self.shooterIntakeArmMotor.set(-0.15)
             else:
-                self.shooterIntakeArmMotor.set(pidP(self, self.intakeArmP, 0, interfaces.intakeDesiredPos, interfaces.intakeActualPos, -.5, .5))
+                self.shooterIntakeArmMotor.set(pidP(self, self.intakeArmP, 0, interfaces.intakeDesiredPos, interfaces.intakeActualPos, self.intakeArmOutputMin, self.intakeArmOutputMax))
 
-        print(self.shooterIntakeArmMotor.get())
+        print(self.shooterIntakeArmMotor.get())       
+        
         self.climberWinchAMotor.set(interfaces.dClimbWinchPower)  
         self.climberWinchBMotor.set(interfaces.dClimbWinchPower) 
         self.climberRaiseMotor.set(interfaces.dClimbRaisePower) 
@@ -237,15 +237,17 @@ class io:
         self.swerveLBTMotor.set(self.swerveLBTPIDNew.calculate(interfaces.swerveLBTActPos))
         self.swerveRBTMotor.set(self.swerveRBTPIDNew.calculate(interfaces.swerveRBTActPos))
 
+
+
 def pidP(self, p, f, des, act, negcmdlim, poscmdlim):
     error = des-act
     cmdff = f * des
     pcmd = p * error
     cmd = pcmd + cmdff
 
-    if(cmd < -1):
-        cmd = -1
-    elif(cmd > 1):
-        cmd = 1
+    if(cmd < negcmdlim):
+        cmd = negcmdlim
+    elif(cmd > poscmdlim):
+        cmd = poscmdlim
 
     return cmd

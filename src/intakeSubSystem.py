@@ -24,7 +24,7 @@ class intakeSystem():
     intakeLoweredThreshold = intakePosLowered - 5 #Threshold to consider the intake to be in the "raised" position
     intakeAllowedPosError = 1 #Allowed intake positon error in degrees
 
-    intakeLoweringSpd = 40 #45degrees per second to move the intake when lowering it
+    intakeLoweringSpd = 35 #degrees per second to move the intake when lowering it
     intakeRaisingSpd = 40 #degrees per secont to move the intake when raising it
     
     mIntakeActPos = 0 #internal actual position of the intake arm
@@ -87,5 +87,3 @@ class intakeSystem():
         #Set final desired values to send to hardware
         interfaces.intakeDesiredPos = self.mIntakeDesPosRamped
         interfaces.intakeWheelSpeed = self.mIntakeSpeed
-        print(self.intakeState)
-        print(interfaces.intakeBallDetected)

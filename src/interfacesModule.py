@@ -29,6 +29,7 @@ class interfaces:
     mShootTrenchAuto = False
     mStartShooter = 0
     mIndexerAdvance = False
+    mIndexerReverse = False
 
     #MOTORS
     #\/---------\/

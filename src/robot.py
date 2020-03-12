@@ -42,15 +42,12 @@ class MyRobot(wpilib.TimedRobot):
         self.controllerManagerInst = controllerManager.controllerManager()
         self.controllerManagerInst.controllerInit(self.interfaces)
 
-        self.indexerSubsystemInst = indexerSubsystem.indexer() 
-        self.indexerSubsystemInst.indexerInit(self.interfaces)
+        self.indexer = indexerSubsystem.indexerSystem(self.interfaces) 
 
         self.intake = intakeSubSystem.intakeSystem(self.interfaces)
         self.intake.init(self.interfaces)
 
-    def robotPeriodic(self):
-        
-       
+    def robotPeriodic(self):   
         self.ioInst.robotPeriodic(self.interfaces)
 
     def autonomousInit(self):
@@ -77,8 +74,6 @@ class MyRobot(wpilib.TimedRobot):
             self.autoShooterTopSpd = self.interfaces.shooterSpdBotWallShot
             self.autoShooterBotSpd = self.interfaces.shooterSpdBotWallShot
 
-
-        
 
     def autonomousPeriodic(self):
         self.autoTimer += 1
@@ -114,12 +109,15 @@ class MyRobot(wpilib.TimedRobot):
     def teleopInit(self):
         
         self.ioInst.teleopInit(self.interfaces)
+        self.indexer.teleopInit(self.interfaces)
 
     def teleopPeriodic(self):
         
         self.controllerManagerInst.controllerManagerPeriodic(self.interfaces)
         self.driveManagerInst.DriveManagerPeriodic(self.interfaces)
+
         self.intake.teleopPeriodic(self.interfaces)
+        self.indexer.teleopPeriodic(self.interfaces)
         self.ioInst.teleopPeriodic(self.interfaces)
 
 if __name__ == "__main__":

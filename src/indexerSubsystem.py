@@ -5,57 +5,41 @@ import robot
 import ioModule
 from networktables import NetworkTables
 
-class indexer():
+class indexerSystem():
 
-    shooterSpdTol = 50 # Tolerance on target shooter speed to meet before shooting
-    
+    mIndexerDesAng = 0 #internal value of indexer desired angle
+    mIndexerDesAngRamped = 0 #internal value of indexer with rate of change limit applied
+    mIndexerIncrement = 120 #distance in degrees to move the indexer when it is commanded to move to the next Angition
+    mIndexerAllowedAngError = 5 #distance in degrees before indexer is considered to have been moved manually out of position
+ 
+    mIndexerAdvanceSpd = 60 #rate in degrees per second to move the indexer when it is advancing to the next position
+    mIndexerReverseSpd = 60 #rate in degrees per second to move ht indexer when it is reverseing to the previous position
 
-    class indexerDuck(IntEnum):
-        ballInFrontOfSensor = 1
-        indexingBall = 2
-        noBallInFrontOfSensor = 3
+    def __init__(self, interfaces):
+        pass
 
-    def indexerInit(self, interfaces):
-        self.sd = NetworkTables.getTable("SmartDashboard")
-        self.state = self.indexerDuck.noBallInFrontOfSensor #saying the state is there is no ball in front of the sensor
-        self.indexerAngle = 0
-        self.counterBoi = 0
+    def teleopInit(self, interfaces):
+        pass
 
-
-    def indexerPeriodic(self, interfaces):
-
-        if (interfaces.mShootAgainstWall == True):
-            interfaces.shooterTopSpeed = 100
-            interfaces.shooterBottomSpeed = 100
-            #Do the thing with the >< so it can index and do the thing idk what saying lets just do it!!!!
-            if ((interfaces.shooterTopSpeedEncoder <= self.shooterTopSpeed + shooterSpdTol) and (interfaces.shooterTopSpeedEncoder >= self.shooterTopSpeed - shooterSpdTol) and (interfaces.shooterBottomSpeedEncoder <= self.shooterBottomSpeed + shooterSpdTol) and (interfaces.shooterBottomSpeedEncoder >= self.shooterBottomSpeed - shooterSpdTol)):
-                self.state = self.indexerDuck.indexingBall
-
-        if self.state == self.indexerDuck.noBallInFrontOfSensor: 
-            #print("There is no ball in front of the sensor")
-            if interfaces.photoSensorBack:
-                self.state = self.indexerDuck.ballInFrontOfSensor
-                #print("there is a ball in front of the sensor")
-            self.counterBoi = 0
+    def teleopPeriodic(self, interfaces):
         
-        elif self.state == self.indexerDuck.ballInFrontOfSensor:
-            print("Photo sensor Back: " + str(interfaces.photoSensorBack))
-            print("Photo sensor Front: " + str(interfaces.photoSensorFront))
-            if(interfaces.photoSensorBack == True and interfaces.photoSensorFront == False):
-                self.state = self.indexerDuck.indexingBall
-                #print("go to index the ball")
+        if(interfaces.mIndexerAdvance):
+            self.mIndexerDesAng += self.mIndexerIncrement
+        elif(interfaces.mIndexerReverse):
+            self.mIndexerDesAng -= self.mIndexerIncrement
 
-        elif self.state == self.indexerDuck.indexingBall:
-            #if the encder value is greater than the desired + 10 and less than 10 away from desired
-            if self.counterBoi == 0:
-                self.indexerAngle += 120
-                self.counterBoi += 1
-            if (interfaces.indexerEncoder <= self.indexerAngle + 5) and (interfaces.indexerEncoder >= self.indexerAngle - 5):
-                self.state = self.indexerDuck.noBallInFrontOfSensor
+        #Keep indexer desired position in sync when indexer is being moved via manual control
+        #if indexer moves past next or previous increment under manual control, set the desired position to that increment
+        if(interfaces.indexerActAng > (self.mIndexerDesAng + self.mIndexerIncrement + self.mIndexerAllowedAngError)):
+            pass
+        elif(interfaces.indexerActAng < (self.mIndexerDesAng - self.mIndexerIncrement - self.mIndexerAllowedAngError)):
+            pass
 
+        if((self.mIndexerDesAngRamped < self.mIndexerDesAng + self.mIndexerAllowedAngError) and (self.mIndexerDesAngRamped > self.mIndexerDesAng - self.mIndexerAllowedAngError)):
+            self.mIndexerDesAngRamped = self.mIndexerDesAng
+        elif(self.mIndexerDesAng > self.mIndexerDesAngRamped):
+            self.mIndexerDesAngRamped += (self.mIndexerAdvanceSpd * interfaces.robotUpdatePeriod)
+        elif(self.mIndexerDesAng < self.mIndexerDesAngRamped):
+            self.mIndexerDesAngRamped -= (self.mIndexerReverseSpd * interfaces.robotUpdatePeriod)
 
-        self.sd.putNumber("Indexer State", int(self.state))
-        #print(self.indexerAngle)
-
-        interfaces.indexerAngle = self.indexerAngle
-        #print(interfaces.indexerEncoder)
+        interfaces.indexerDesAng = self.mIndexerDesAngRamped
