@@ -6,6 +6,7 @@ import controllerManager
 import DriveManager
 import indexerSubsystem
 import intakeSubSystem
+import autonomousDrive
 
 class MyRobot(wpilib.TimedRobot):
 
@@ -13,6 +14,8 @@ class MyRobot(wpilib.TimedRobot):
 
     autoTimer = 0
     #^started at 0
+    autoTimerQuarterSecond = 0
+    #^comment for symmetry
     autoSpoolTime = 100
     #^started at 100
     autoShootTime = 500
@@ -80,6 +83,16 @@ class MyRobot(wpilib.TimedRobot):
     def autonomousPeriodic(self):
         self.autoTimer += 1
 
+        if(self.autoTimer % 12.5 == 0):
+            if(self.autoTimerQuarterSecond < len(self.autonomousDrive.autonomousInputs)):
+                self.autoTimerQuarterSecond = self.autoTimer / 12.5
+                #update every quarter second, assuming it already updates every 50ms, or 20/s
+                #limits the timer increase so that it doesn't try to access a value beyond what is in the list
+            self.interfaces.dMoveX = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][1]
+            self.interfaces.dMoveY = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][2]
+            self.interfaces.dTurn = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][3]
+
+        """
         if(self.autoTimer < self.autoShootTime):
             self.interfaces.indexerManMode = True
             self.interfaces.indexerManPower = 0
@@ -103,6 +116,7 @@ class MyRobot(wpilib.TimedRobot):
         if(self.autoTimer > self.autoDriveTime):
             self.interfaces.dMoveX = 0
             self.interfaces.dMoveY = 0
+        """
 
         self.driveManagerInst.DriveManagerPeriodic(self.interfaces)
         self.intake.teleopPeriodic(self.interfaces)
