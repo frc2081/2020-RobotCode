@@ -56,8 +56,10 @@ class MyRobot(wpilib.TimedRobot):
         self.ioInst.robotPeriodic(self.interfaces)
 
     def autonomousInit(self):
-        
+
         self.autoTimer = 0
+
+        """
         #Configure Auto mode
         #shot from 10 foot line
         if(self.autoMode == 0):
@@ -78,10 +80,21 @@ class MyRobot(wpilib.TimedRobot):
             self.autoDriveY = 0
             self.autoShooterTopSpd = self.interfaces.shooterSpdBotWallShot
             self.autoShooterBotSpd = self.interfaces.shooterSpdBotWallShot
-
+        """
 
     def autonomousPeriodic(self):
-        self.autoTimer += 1
+        self.autoTimer += 0.5
+
+        if(self.autoTimer % 12.5 == 0):
+            if(self.autoTimerQuarterSecond < len(self.autonomousDrive.autonomousInputs)):
+                self.autoTimerQuarterSecond = self.autoTimer / 12.5
+                #update every quarter second, assuming it already updates every 50ms, or 20/s
+                #limits the timer increase so that it doesn't try to access a value beyond what is in the list
+            self.interfaces.dMoveX = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][1]
+            self.interfaces.dMoveY = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][2]
+            self.interfaces.dTurn = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][3]
+
+        self.autoTimer += 0.5
 
         if(self.autoTimer % 12.5 == 0):
             if(self.autoTimerQuarterSecond < len(self.autonomousDrive.autonomousInputs)):
