@@ -1,5 +1,5 @@
-import robot.py
 import interfacesModule
+import robot
 
 class autonomousDrive:
     #array for inputs
@@ -59,7 +59,7 @@ class autonomousDrive:
         [0, 0, 0],
         #leave last one blank to ensure the robot stops moving at the end of the code
         [0, 0, 0],
-
         ]
 
     def autonomousDrive(self, interfaces):
+            pass

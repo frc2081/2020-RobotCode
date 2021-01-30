@@ -171,8 +171,8 @@ class io:
 
 
     def teleopPeriodic(self, interfaces):
-        print(self.indexerEncoder.getDistance())
-        print(interfaces.indexerDesAng)
+        #print(self.indexerEncoder.getDistance())
+        #print(interfaces.indexerDesAng)
 
         shooterNewP = self.sd.getNumber("Shooter P", 0.00005)
         shooterNewI = self.sd.getNumber("Shooter I", 0)

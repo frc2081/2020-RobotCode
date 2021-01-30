@@ -6,16 +6,16 @@ import controllerManager
 import DriveManager
 import indexerSubsystem
 import intakeSubSystem
-import autonomousDrive
+import autonomous
 
 class MyRobot(wpilib.TimedRobot):
-
-    #This is an example comment
 
     autoTimer = 0
     #^started at 0
     autoTimerQuarterSecond = 0
-    #^comment for symmetry
+    #^start at 1 to prevent index error
+
+    """
     autoSpoolTime = 100
     #^started at 100
     autoShootTime = 500
@@ -32,6 +32,7 @@ class MyRobot(wpilib.TimedRobot):
     #^started at 0
 
     autoMode = 0 # 0 = 10 foot shot, 1 = shot against wall
+    """
 
     def robotInit(self):
 
@@ -83,28 +84,20 @@ class MyRobot(wpilib.TimedRobot):
         """
 
     def autonomousPeriodic(self):
-        self.autoTimer += 0.5
+        
+        for i in range(2):
+            self.autoTimer += 0.5
 
-        if(self.autoTimer % 12.5 == 0):
-            if(self.autoTimerQuarterSecond < len(self.autonomousDrive.autonomousInputs)):
-                self.autoTimerQuarterSecond = self.autoTimer / 12.5
-                #update every quarter second, assuming it already updates every 50ms, or 20/s
-                #limits the timer increase so that it doesn't try to access a value beyond what is in the list
-            self.interfaces.dMoveX = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][1]
-            self.interfaces.dMoveY = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][2]
-            self.interfaces.dTurn = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][3]
+            if(self.autoTimer % 12.5 == 0):
+                if(self.autoTimerQuarterSecond < (len(autonomous.autonomousDrive.autonomousInputs) - 1)):
+                    self.autoTimerQuarterSecond = self.autoTimer / 12.5
+                    #update every quarter second, assuming it already updates every 20ms, or 50/s
+                    #limits the timer increase so that it doesn't try to access a value beyond what is in the list in autonomous.py
 
-        self.autoTimer += 0.5
-
-        if(self.autoTimer % 12.5 == 0):
-            if(self.autoTimerQuarterSecond < len(self.autonomousDrive.autonomousInputs)):
-                self.autoTimerQuarterSecond = self.autoTimer / 12.5
-                #update every quarter second, assuming it already updates every 50ms, or 20/s
-                #limits the timer increase so that it doesn't try to access a value beyond what is in the list
-            self.interfaces.dMoveX = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][1]
-            self.interfaces.dMoveY = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][2]
-            self.interfaces.dTurn = self.autonomousDrive.autonomousInputs[autoTimerQuarterSecond][3]
-
+        self.interfaces.dMoveX = autonomous.autonomousDrive.autonomousInputs[int(self.autoTimerQuarterSecond)][0]
+        self.interfaces.dMoveY = autonomous.autonomousDrive.autonomousInputs[int(self.autoTimerQuarterSecond)][1]
+        self.interfaces.dTurn = autonomous.autonomousDrive.autonomousInputs[int(self.autoTimerQuarterSecond)][2]
+        
         """
         if(self.autoTimer < self.autoShootTime):
             self.interfaces.indexerManMode = True
