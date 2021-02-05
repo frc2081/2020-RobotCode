@@ -53,6 +53,9 @@ class MyRobot(wpilib.TimedRobot):
         self.intake = intakeSubSystem.intakeSystem(self.interfaces)
         self.intake.init(self.interfaces)
 
+        self.autonomousStart = autonomous.autonomousDrive()
+        self.autonomousStart.autonomousInit()
+
     def robotPeriodic(self):   
         self.ioInst.robotPeriodic(self.interfaces)
 
